@@ -2,6 +2,10 @@
 import React, {Component} from 'react';
 import {ActivityIndicator, Alert, Text, View} from 'react-native';
 
+// Redux imports
+import {connect} from 'react-redux';
+import {saveName} from './actions';
+
 // Firebase imports
 import firebase from '@firebase/app';
 import '@firebase/auth';
@@ -11,7 +15,7 @@ import CREDENTIALS from 'cuOrganizer/credentials';
 import {colors, containerStyle, textStyle} from 'cuOrganizer/src/common/appStyles';
 import {AndroidBar, Button, TextField} from 'cuOrganizer/src/common';
 
-export default class SignInPage extends Component
+class SignInPage extends Component
 {
 	constructor(props)
 	{
@@ -23,34 +27,54 @@ export default class SignInPage extends Component
 		}
 	}
 
+	showAlert(type)
+	{
+		switch (type)
+		{
+			case "No Connection":
+				Alert.alert(
+					"No Connection",
+					"Please connect to the internet to continue",
+					[{text: 'OK', onPress: () => {}}]
+				);
+				return;
+
+			case "Auth Failed":
+				Alert.alert(
+					"Authentication Failed",
+					"Something is seriously wrong - Message Wal right away\n\n" + error,
+					[{text: 'OK', onPress: () => {}}]
+				);
+				return;
+
+			case "Invalid Name":
+				Alert.alert(
+					"No name entered",
+					"Please enter a name",
+					[{text: 'OK', onPress: () => {}}]
+				);
+				return;
+		}
+	}
+
 	authFailure(error)
 	{
 		// Showing the login form again
 		this.setState({authenticating: false});
 
 		if (error.code == 'auth/network-request-failed')
-		{
-			Alert.alert(
-				"No Connection",
-				"Please connect to the internet to continue",
-				[{text: 'OK', onPress: () => {}}]
-			);
-		}
+			this.showAlert("No Connection");
 		else
-		{
-			Alert.alert(
-				"Authentication Failed",
-				"Something is seriously wrong. Message Wal right away.\n\n" + error,
-				[{text: 'OK', onPress: () => {}}]
-			);
-		}
+			this.showAlert("Auth Failed");
 	}
 
 	authSuccess()
 	{
-		this.setState({authenticating: false});
+		// Saving the name to the app
+		this.props.saveName(this.state.fullNameText);
 
-		alert("Success");
+		// this.setState({authenticating: false});
+		// alert("Welcome " + this.state.fullNameText + "~");
 	}
 
 	authenticate()
@@ -62,6 +86,16 @@ export default class SignInPage extends Component
 		firebase.auth().signInWithEmailAndPassword(CREDENTIALS.EMAIL, CREDENTIALS.PASSWORD).then(this.authSuccess.bind(this)).catch((error) => this.authFailure(error));
 	}
 
+	checkNameFormat()
+	{
+		if (this.state.fullNameText == "")
+			this.showAlert("Invalid Name");
+		else
+		{
+			this.setState(prevState => {return {fullNameText: prevState.fullNameText.trim()}});
+			this.authenticate();
+		}
+	}
 	generatePadding()
 	{
 		return (
@@ -85,11 +119,12 @@ export default class SignInPage extends Component
 						<TextField
 							fontSize = {24}
 							label = "Full Name"
+							defaultValue = {this.state.fullNameText}
 							textAlign = 'center'
 							textColor = {colors.primaryTextColor}
 							maxLength = {30}
 							onChangeText = {(newText) => this.setState({fullNameText: newText})}
-							// onSubmitEditing = {submit}
+							onSubmitEditing = {this.checkNameFormat.bind(this)}
 							placeholder = "Wal Wal"
 						/>
 					</View>
@@ -98,7 +133,7 @@ export default class SignInPage extends Component
 							label = "Submit"
 							color = 'white'
 							inverted = {true}
-							action = {this.authenticate.bind(this)}
+							action = {this.checkNameFormat.bind(this)}
 						/>
 					</View>
 				</View>
@@ -120,3 +155,4 @@ export default class SignInPage extends Component
 		}
 	}
 }
+export default connect(null, {saveName})(SignInPage);
