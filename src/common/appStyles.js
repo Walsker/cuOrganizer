@@ -13,7 +13,11 @@ export const colors =
 
 export const containerStyle = StyleSheet.create(
 {
-	default: {flex: 1},
+	default: 
+	{
+		flex: 1, 
+		// backgroundColor: colors.primarySpaceColor
+	},
 	form:
 	{
 		flex: 1,

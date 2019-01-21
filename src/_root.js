@@ -3,6 +3,10 @@ import React, {Component} from 'react';
 import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 
+// Firebase imports
+import firebase from '@firebase/app';
+import firebaseConfig from 'cuOrganizer/firebaseConfig';
+
 // Custom imports
 import {containerStyle} from 'cuOrganizer/src/common/appStyles';
 import SignInPage from './signInScreen/signInPage';
@@ -11,7 +15,8 @@ export default class Root extends Component
 {
 	componentDidMount()
 	{
-		SplashScreen.hide()
+		SplashScreen.hide();
+		firebase.initializeApp(firebaseConfig);
 	}
 
 	render()
