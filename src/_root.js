@@ -4,7 +4,8 @@ import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 
 // Custom imports
-import {colors, containerStyle, textStyle} from 'cuOrganizer/src/common/appStyles';
+import {containerStyle} from 'cuOrganizer/src/common/appStyles';
+import SignInPage from './signInScreen/signInPage';
 
 export default class Root extends Component
 {
@@ -23,23 +24,11 @@ export default class Root extends Component
 					barStyle = 'light-content'
 					backgroundColor = 'transparent'
 				/>
-				<View style = {localStyle.background}>
-					<Text style = {textStyle.regular(28, 'center', 'white')}>cuHacking Organizer app</Text>
-				</View>
+				<SignInPage/>
 			</SafeAreaView>
 		);
 	}
 }
-
-const localStyle = StyleSheet.create(
-{
-	background:
-	{
-		flex: 1,
-		backgroundColor: colors.darkSpaceColor,
-		justifyContent: 'center'
-	}
-});
 
 // This disables the timer warning as a result of using the web sdk of firebase. Keep checking for a fix for this
 console.ignoredYellowBox = ["Setting a timer"];

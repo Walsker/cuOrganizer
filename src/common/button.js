@@ -10,7 +10,7 @@
 // --------------------------------------------------------------------------------------
 // React Native imports
 import React, {Component} from 'react';
-import {Animated, Platform, TouchableNativeFeedback, TouchableWithoutFeedback, Text, View} from 'react-native';
+import {Animated, Platform, StyleSheet, TouchableNativeFeedback, TouchableWithoutFeedback, Text, View} from 'react-native';
 
 // Custom imports
 import {containerStyle, textStyle, colors} from './appStyles';
@@ -92,7 +92,7 @@ export default class Button extends Component
 	renderiOS()
 	{
 		return (
-			<View style = {containerStyle.rowBox}>
+			<View style = {localStyle.buttonSpace}>
 				<Animated.View style = {{transform: [{scale: 
 					this.state.pressValue.interpolate({
 						inputRange: [this.state.INACTIVE_VALUE, this.state.ACTIVE_VALUE],
@@ -117,9 +117,19 @@ export default class Button extends Component
 
 	render()
 	{
-		if (Platform.OS === 'ios')
+		// if (Platform.OS === 'ios')
 			return this.renderiOS();
-		else
-			return this.renderAndroid();
+		// else
+		// 	return this.renderAndroid();
 	}
 }
+
+const localStyle = StyleSheet.create(
+{
+	buttonSpace:
+	{
+		margin: 10,
+		flexDirection: 'row',
+		justifyContent: 'space-evenly'
+	}
+});

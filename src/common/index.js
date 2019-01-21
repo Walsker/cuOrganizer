@@ -1,3 +1,5 @@
+import AndroidBar from './androidBar';
 import Button from './button';
+import TextField from './textField';
 
-export {Button};
+export {AndroidBar, Button, TextField};

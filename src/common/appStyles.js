@@ -4,17 +4,30 @@ export const colors =
 {
 	primaryColor: '#C8102E',
 	darkPrimaryColor: '#AC0D27',
-	primarySpaceColor: '#FDEDB2',
-	lightSpaceColor: '#FAFAFA',
-	darkSpaceColor: '#222222',
-	primaryTextColor: '#212121',
+	primarySpaceColor: '#222222',
+	secondarySpaceColor: '#444444',
+	primaryTextColor: '#FFFFFF',
 	secondaryTextColor: '#757575',
 	dividerColor: '#AFAFAF'
 }
 
 export const containerStyle = StyleSheet.create(
 {
-	default: {flex: 1}
+	default: {flex: 1},
+	form:
+	{
+		flex: 1,
+		backgroundColor: colors.primarySpaceColor,
+		justifyContent: 'flex-start',
+		paddingHorizontal: 10,
+		paddingTop: 10,
+		paddingBottom: 0
+	},
+	formSection:
+	{
+		marginVertical: 10,
+		justifyContent: 'flex-start'
+	}
 });
 
 const createFont = (size, alignment, color) =>
