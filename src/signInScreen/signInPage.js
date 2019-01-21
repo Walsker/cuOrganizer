@@ -16,7 +16,7 @@ export default class SignInPage extends Component
 	constructor(props)
 	{
 		super(props);
-		this.state = 
+		this.state =
 		{
 			authenticating: false,
 			fullNameText: ""
@@ -33,7 +33,7 @@ export default class SignInPage extends Component
 			Alert.alert(
 				"No Connection",
 				"Please connect to the internet to continue",
-				[{text: 'OK', onPress: () => {}}]			
+				[{text: 'OK', onPress: () => {}}]
 			);
 		}
 		else
@@ -41,7 +41,7 @@ export default class SignInPage extends Component
 			Alert.alert(
 				"Authentication Failed",
 				"Something is seriously wrong. Message Wal right away.\n\n" + error,
-				[{text: 'OK', onPress: () => {}}]			
+				[{text: 'OK', onPress: () => {}}]
 			);
 		}
 	}
@@ -57,7 +57,7 @@ export default class SignInPage extends Component
 	{
 		// Showing an activity indicator
 		this.setState({authenticating: true});
-		
+
 		// Sending the authentication request to firebase
 		firebase.auth().signInWithEmailAndPassword(CREDENTIALS.EMAIL, CREDENTIALS.PASSWORD).then(this.authSuccess.bind(this)).catch((error) => this.authFailure(error));
 	}

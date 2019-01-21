@@ -9,7 +9,7 @@ import firebaseConfig from 'cuOrganizer/firebaseConfig';
 
 // Custom imports
 import {containerStyle} from 'cuOrganizer/src/common/appStyles';
-import SignInPage from './signInScreen/signInPage';
+import RootNavigator from './_rootNavigator';
 
 export default class Root extends Component
 {
@@ -29,7 +29,7 @@ export default class Root extends Component
 					barStyle = 'light-content'
 					backgroundColor = 'transparent'
 				/>
-				<SignInPage/>
+				<RootNavigator/>
 			</SafeAreaView>
 		);
 	}
