@@ -2,7 +2,19 @@ package com.cuorganizer;
 
 import com.facebook.react.ReactActivity;
 
+// React native splash screen imports
+import org.devio.rn.splashscreen.SplashScreen;
+import android.os.Bundle;
+
 public class MainActivity extends ReactActivity {
+
+    // From react native splash screen
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        SplashScreen.show(this, R.style.SplashScreenTheme);
+        super.onCreate(savedInstanceState);
+    }
 
     /**
      * Returns the name of the main component registered from JavaScript.

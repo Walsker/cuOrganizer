@@ -1,12 +1,18 @@
 // React Native imports
 import React, {Component} from 'react';
 import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import SplashScreen from 'react-native-splash-screen';
 
 // Custom imports
 import {colors, containerStyle, textStyle} from 'cuOrganizer/src/common/appStyles';
 
 export default class Root extends Component
 {
+	componentDidMount()
+	{
+		SplashScreen.hide()
+	}
+
 	render()
 	{
 		return (
