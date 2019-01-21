@@ -1,0 +1,3 @@
+rootProject.name = 'cuOrganizer'
+
+include ':app'
