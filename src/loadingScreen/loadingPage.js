@@ -57,7 +57,7 @@ class LoadingPage extends Component
 	authSuccess()
 	{
 		// Moving to the main menu
-		this.props.navigation.navigate("Menu");
+		this.props.navigation.navigate("Main");
 	}
 
 	authenticate()
