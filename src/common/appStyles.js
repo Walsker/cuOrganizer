@@ -14,7 +14,7 @@ export const colors =
 export const containerStyle = StyleSheet.create(
 {
 	default: {flex: 1},
-	form:
+	page:
 	{
 		flex: 1,
 		backgroundColor: colors.primarySpaceColor,
@@ -23,7 +23,7 @@ export const containerStyle = StyleSheet.create(
 		paddingTop: 10,
 		paddingBottom: 0
 	},
-	formSection:
+	pageSection:
 	{
 		marginVertical: 10,
 		justifyContent: 'flex-start'

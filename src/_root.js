@@ -9,8 +9,8 @@ import {Provider} from 'react-redux';
 import rootReducer from './_rootReducer';
 
 // Redux Persist imports
-// import {persistStore} from 'redux-persist';
-// import {PersistGate} from 'redux-persist/integration/react'
+import {persistStore} from 'redux-persist';
+import {PersistGate} from 'redux-persist/integration/react'
 
 // Firebase imports
 import firebase from '@firebase/app';
@@ -31,7 +31,7 @@ export default class Root extends Component
 	render()
 	{
 		const store = createStore(rootReducer);
-		// const persistor = persistStore(store);
+		const persistor = persistStore(store);
 		// persistor.purge();
 
 		return (
@@ -43,11 +43,11 @@ export default class Root extends Component
 					backgroundColor = 'transparent'
 				/>
 				<Provider store = {store}>
-					{/* <PersistGate loading = {<View style = {localStyle.background}/>} persistor = {persistor}> */}
+					<PersistGate loading = {<View style = {localStyle.background}/>} persistor = {persistor}>
 						<View style = {containerStyle.default}>
 							<RootNavigator/>
 						</View>
-					{/* </PersistGate> */}
+					</PersistGate>
 				</Provider>
 			</SafeAreaView>
 		);
@@ -56,7 +56,7 @@ export default class Root extends Component
 
 const localStyle = StyleSheet.create(
 {
-	background: {flex: 1, backgroundColor: colors.primaryColor}
+	background: {flex: 1, backgroundColor: colors.primarySpaceColor}
 });
 
 // This disables the timer warning as a result of using the web sdk of firebase. Keep checking for a fix for this
