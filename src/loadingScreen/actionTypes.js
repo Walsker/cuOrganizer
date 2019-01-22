@@ -1,0 +1,1 @@
+export const UPDATE_EVENT_TYPES = "updateEventTypes";

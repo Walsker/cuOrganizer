@@ -4,10 +4,12 @@ import {ActivityIndicator, Alert, StyleSheet, View} from 'react-native';
 
 // Redux imports
 import {connect} from 'react-redux';
+import {updateEventTypes} from './actions';
 
 // Firebase imports
 import firebase from '@firebase/app';
 import '@firebase/auth';
+import '@firebase/database';
 
 // Custom imports
 import CREDENTIALS from 'cuOrganizer/credentials';
@@ -34,6 +36,15 @@ class LoadingPage extends Component
 					{cancelable: false}
 				);
 				return;
+			
+			case "Fetch Failure":
+				Alert.alert(
+					"Something went wrong",
+					"Something is seriously wrong - Message Wal right away\n\n" + error,
+					[{text: 'OK', onPress: () => this.setState({waitingForConnection: true})}],
+					{cancelable: false}
+				);
+				return;
 
 			case "No Connection":
 				Alert.alert(
@@ -56,8 +67,18 @@ class LoadingPage extends Component
 
 	authSuccess()
 	{
-		// Moving to the main menu
-		this.props.navigation.navigate("Main");
+		var toMainApp = (eventTypes) =>
+		{
+			console.log("ASD", eventTypes);
+			// Updating the list of event types
+			this.props.updateEventTypes(eventTypes);
+			
+			// Moving to the main menu
+			this.props.navigation.navigate("Main");
+		};
+
+		console.log(firebase.auth().currentUser.uid);
+		firebase.database().ref("/eventTypes").once('value').then((snapshot) => toMainApp(snapshot.val())).catch((error) => this.displayError("Fetch Failure", error));
 	}
 
 	authenticate()
@@ -101,11 +122,10 @@ class LoadingPage extends Component
 
 const mapStateToProps = (state) =>
 {
-	return {
-		organizerName: state.organizerName
-	};
-}
-export default connect(mapStateToProps)(LoadingPage);
+	return {organizerName: state.organizerName};
+};
+export default connect(mapStateToProps, {updateEventTypes})(LoadingPage);
+
 
 const localStyle = StyleSheet.create(
 {
