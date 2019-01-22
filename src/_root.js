@@ -58,6 +58,3 @@ const localStyle = StyleSheet.create(
 {
 	background: {flex: 1, backgroundColor: colors.primarySpaceColor}
 });
-
-// This disables the timer warning as a result of using the web sdk of firebase. Keep checking for a fix for this
-console.ignoredYellowBox = ["Setting a timer"];

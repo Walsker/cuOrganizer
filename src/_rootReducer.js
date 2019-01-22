@@ -8,6 +8,7 @@ import storage from 'redux-persist/lib/storage';
 // Reducer imports
 import loadingReducers from './loadingScreen/reducers';
 import signInReducers from './signInScreen/reducers';
+import menuReducers from './menuScreen/reducers';
 
 const rootPersistConfig =
 {
@@ -18,7 +19,8 @@ const rootPersistConfig =
 
 const rootReducer = combineReducers({
 	...loadingReducers,
-	...signInReducers
+	...signInReducers,
+	...menuReducers
 });
 
 export default persistReducer(rootPersistConfig, rootReducer);

@@ -1,27 +1,65 @@
 // React imports
 import React, {Component} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {Dimensions, ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+
+// Redux imports
+import {connect} from 'react-redux';
 
 // Custom imports
-import {colors, textStyle} from 'cuOrganizer/src/common/appStyles';
+import {colors, containerStyle, textStyle} from 'cuOrganizer/src/common/appStyles';
+import {ActionBar} from 'cuOrganizer/src/common';
 
-export default class ScannerPage extends Component
+class ScannerPage extends Component
 {
-    render()
-    {
-        return (
-            <View style = {localStyle.default}>
-                <Text style = {textStyle.light(21, 'center')}>QR Code scanner page</Text>
-            </View>
-        );
-    }
+	render()
+	{
+		var {width, height} = Dimensions.get('screen');
+
+		return (
+			<ScrollView showsVerticalScrollIndicator = {false} showsHorizontalScrollIndicator = {false}>
+				<View style = {[localStyle.cameraScreen, {height}]}>
+					<View style = {localStyle.cameraSpace}>
+						<Text style = {textStyle.light(21, 'center')}>QR Code scanner page</Text>
+					</View>
+					<ActionBar
+						title = {this.props.eventTypes[this.props.selectedEvent]}
+						lifted = {true}
+						inverted = {false}
+					/>
+				</View>
+				<View style = {[localStyle.scanHistory, {height: height - 56 - StatusBar.currentHeight}]}>
+					<Text style = {textStyle.light(21, 'center')}>Scan history</Text>
+				</View>
+			</ScrollView>
+		);
+	}
 }
+
+const mapStateToProps = (state) =>
+{
+	return {
+		eventTypes: state.eventTypes,
+		selectedEvent: state.selectedEvent
+	};
+}
+export default connect(mapStateToProps)(ScannerPage);
+
 
 const localStyle = StyleSheet.create(
 {
-    default:
-    {
-        flex: 1,
-        backgroundColor: colors.primaryColor
-    }
+	cameraScreen:
+	{
+		backgroundColor: colors.primarySpaceColor,
+		justifyContent: 'flex-end'
+	},
+	cameraSpace:
+	{
+		flex: 1,
+		justifyContent: 'center'
+	},
+	scanHistory:
+	{
+		backgroundColor: colors.primarySpaceColor,
+		justifyContent: 'flex-end'
+	}
 });

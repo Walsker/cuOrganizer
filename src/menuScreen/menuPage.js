@@ -4,6 +4,7 @@ import {StyleSheet, Text, View} from 'react-native';
 
 // Redux imports
 import {connect} from 'react-redux';
+import {selectEvent} from './actions';
 
 // Custom imports
 import {colors, containerStyle, textStyle} from 'cuOrganizer/src/common/appStyles';
@@ -13,6 +14,12 @@ class MenuPage extends Component
 {	
 	createEventButton(eventKey, eventName)
 	{
+		const toScanner = () =>
+		{
+			this.props.selectEvent(eventKey);
+			this.props.navigation.navigate("Scanner");
+		}
+
 		return (
 			<Button
 				key = {eventKey}
@@ -20,7 +27,7 @@ class MenuPage extends Component
 				labelColor = {colors.primaryTextColor}
 				color = {colors.primaryColor}
 				inverted = {false}
-				action = {() => {}}
+				action = {toScanner.bind(this)}
 			/>
 		);
 	}
@@ -60,4 +67,4 @@ const mapStateToProps = (state) =>
 		eventTypes: state.eventTypes
 	};
 }
-export default connect(mapStateToProps)(MenuPage);
+export default connect(mapStateToProps, {selectEvent})(MenuPage);
