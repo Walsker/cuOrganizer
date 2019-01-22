@@ -10,15 +10,29 @@ import {colors, containerStyle, textStyle} from 'cuOrganizer/src/common/appStyle
 import {Button, Divider, PagePadding} from 'cuOrganizer/src/common';
 
 class MenuPage extends Component
-{
-	componentDidMount()
+{	
+	createEventButton(eventKey, eventName)
 	{
-		console.log(this.props.eventTypes);
+		return (
+			<Button
+				key = {eventKey}
+				label = {eventName}
+				labelColor = {colors.primaryTextColor}
+				color = {colors.primaryColor}
+				inverted = {false}
+				action = {() => {}}
+			/>
+		);
 	}
-	
+
 	render()
 	{
 		var firstName = (this.props.organizerName.split(" "))[0];
+		var eventButtons = [];
+
+		for (var event in this.props.eventTypes)
+			eventButtons.push(this.createEventButton(event, this.props.eventTypes[event]));
+
 		return (
 			<View style = {containerStyle.page}>
 				<PagePadding/>
@@ -32,13 +46,7 @@ class MenuPage extends Component
 				</View>
 				<Divider color = {colors.dividerColor}/>
 				<View style = {containerStyle.pageSection}>
-					<Button
-						label = "Registration"
-						labelColor = {colors.primaryTextColor}
-						color = {colors.primaryColor}
-						inverted = {false}
-						action = {() => {}}
-					/>
+					{eventButtons}
 				</View>
 			</View>
 		);

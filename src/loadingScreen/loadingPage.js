@@ -69,7 +69,6 @@ class LoadingPage extends Component
 	{
 		var toMainApp = (eventTypes) =>
 		{
-			console.log("ASD", eventTypes);
 			// Updating the list of event types
 			this.props.updateEventTypes(eventTypes);
 			
@@ -77,7 +76,7 @@ class LoadingPage extends Component
 			this.props.navigation.navigate("Main");
 		};
 
-		console.log(firebase.auth().currentUser.uid);
+		// Getting the types of events that can be scanned for from firebase
 		firebase.database().ref("/eventTypes").once('value').then((snapshot) => toMainApp(snapshot.val())).catch((error) => this.displayError("Fetch Failure", error));
 	}
 
