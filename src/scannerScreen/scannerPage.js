@@ -1,21 +1,29 @@
 // React imports
 import React, {Component} from 'react';
-import {Dimensions, ScrollView, StatusBar, StyleSheet, Text, Vibration, View} from 'react-native';
+import {Dimensions, ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
 // Redux imports
 import {connect} from 'react-redux';
 
+// Firebase imports
+import firebase from '@firebase/app';
+import '@firebase/database';
+
 // Custom imports
 import {colors, textStyle} from 'cuOrganizer/src/common/appStyles';
 import {ActionBar, Button, IconButton} from 'cuOrganizer/src/common';
+import BADGE_KEY from 'cuOrganizer/$badge';
 
 class ScannerPage extends Component
 {
 	constructor(props)
 	{
 		super(props);
+		
 		this.scrollRef = React.createRef();
+		this.scannerRef = React.createRef();
+
 		this.state = 
 		{
 			showHistory: false,
@@ -24,29 +32,64 @@ class ScannerPage extends Component
 		};
 	}
 
-	processCode()
+	processCode(code)
 	{
+		const checkIfScanned = (snapshot) =>
+		{
+			// Checking if this badge has already been scanned
+			console.log(snapshot.val().scanned);
+			if (snapshot.val().scanned)
+				this.scanFailure("Already Scanned");
+			else
+				this.scanSuccess(data[1]);
+		};
 
+		// Extracting the data from the QR code
+		var data = code.data.split("|");
+		
+		// Checking if the QR code is in the correct format
+		if (data[0] != BADGE_KEY || data[1] == null)
+			this.scanFailure("Invalid Badge");
+		else
+			firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + data[1]).once('value').then(checkIfScanned).catch(error => alert(error));
 	}
 
-	scanSuccess()
+	scanSuccess(hackerID)
 	{
-		Vibration.vibrate(500);
+		// TODO: set scanned to true and provide org name
+		firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + hackerID).set({
+			scanned: true,
+			organizer: this.props.organizerName,
+			time: 111
+		});
+		// TODO: get hacker name and save to history
+
+		// Displaying a green indicator
 		this.setState({displayIndicator: true, indicatorColor: green});
-
-		setTimeout(() => this.setState({displayIndicator: false}), 500);
+		setTimeout(() => 
+		{
+			// Turning off the indicator
+			this.setState({displayIndicator: false});
+			
+			// Turning the scanner back on after a cooldown time
+			setTimeout(() => this.scannerRef.current.reactivate(), 1000);
+		}, 500);
 	}
 
-	scanFailure()
+	scanFailure(error)
 	{
-		Vibration.vibrate(800);
+		// Displaying a flashing red indicator
 		this.setState({displayIndicator: true, indicatorColor: red});
 
 		var flasher = setInterval(() => this.setState(prevState => {return {displayIndicator: !prevState.displayIndicator}}), 100);
 		setTimeout(() => 
 		{
-			this.setState({displayIndicator: false});
+			// Turning off the indicator
 			clearInterval(flasher);
+			this.setState({displayIndicator: false});
+
+			// Turning the scanner back on after a cooldown time
+			setTimeout(() => this.scannerRef.current.reactivate(), 1000);
 		}, 800);
 	}
 
@@ -94,6 +137,7 @@ class ScannerPage extends Component
 				<View style = {[localStyle.cameraSpace, {height: height - 56}]}>
 					{this.state.displayIndicator ? <View style = {[localStyle.indicator, {borderColor: this.state.indicatorColor}]}/> : <View/>}
 					<QRCodeScanner
+						ref = {this.scannerRef}
 						fadeIn = {false}
 						onRead = {this.processCode.bind(this)}
 						cameraStyle = {localStyle.camera}
@@ -135,6 +179,7 @@ const mapStateToProps = (state) =>
 {
 	return {
 		eventTypes: state.eventTypes,
+		organizerName: state.organizerName,
 		selectedEvent: state.selectedEvent
 	};
 }
