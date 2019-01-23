@@ -1,13 +1,13 @@
 // React imports
 import React, {Component} from 'react';
-import {Dimensions, ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {Dimensions, ScrollView, StatusBar, StyleSheet, Text, Vibration, View} from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
 // Redux imports
 import {connect} from 'react-redux';
 
 // Custom imports
-import {colors, containerStyle, textStyle} from 'cuOrganizer/src/common/appStyles';
+import {colors, textStyle} from 'cuOrganizer/src/common/appStyles';
 import {ActionBar, Button, IconButton} from 'cuOrganizer/src/common';
 
 class ScannerPage extends Component
@@ -16,12 +16,38 @@ class ScannerPage extends Component
 	{
 		super(props);
 		this.scrollRef = React.createRef();
-		this.state = {showHistory: false}
+		this.state = 
+		{
+			showHistory: false,
+			displayIndicator: false,
+			indicatorColor: 'transparent'
+		};
 	}
 
 	processCode()
 	{
 
+	}
+
+	scanSuccess()
+	{
+		Vibration.vibrate(500);
+		this.setState({displayIndicator: true, indicatorColor: green});
+
+		setTimeout(() => this.setState({displayIndicator: false}), 500);
+	}
+
+	scanFailure()
+	{
+		Vibration.vibrate(800);
+		this.setState({displayIndicator: true, indicatorColor: red});
+
+		var flasher = setInterval(() => this.setState(prevState => {return {displayIndicator: !prevState.displayIndicator}}), 100);
+		setTimeout(() => 
+		{
+			this.setState({displayIndicator: false});
+			clearInterval(flasher);
+		}, 800);
 	}
 
 	renderHistoryButton()
@@ -66,6 +92,7 @@ class ScannerPage extends Component
 					animated = {true}
 				/>
 				<View style = {[localStyle.cameraSpace, {height: height - 56}]}>
+					{this.state.displayIndicator ? <View style = {[localStyle.indicator, {borderColor: this.state.indicatorColor}]}/> : <View/>}
 					<QRCodeScanner
 						fadeIn = {false}
 						onRead = {this.processCode.bind(this)}
@@ -113,7 +140,8 @@ const mapStateToProps = (state) =>
 }
 export default connect(mapStateToProps)(ScannerPage);
 
-
+const green = '#00FF00';
+const red = '#FF0000';
 const localStyle = StyleSheet.create(
 {
 	cameraSpace:
@@ -122,6 +150,16 @@ const localStyle = StyleSheet.create(
 		justifyContent: 'center',
 		backgroundColor: colors.primarySpaceColor
 	},
+	indicator:
+	{
+		width: '100%',
+		height: '100%',
+		borderWidth: 40,
+		borderLeftWidth: 35,
+		borderRightWidth: 35,
+		position: 'absolute',
+		elevation: 10
+	},	
 	scanList:
 	{
 		flex: 1,
