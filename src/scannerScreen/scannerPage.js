@@ -41,7 +41,10 @@ class ScannerPage extends Component
 			if (snapshot.val().scanned)
 				this.scanFailure("Already Scanned");
 			else
+			{
+				// TODO: check if this badge is registered, then
 				this.scanSuccess(data[1]);
+			}
 		};
 
 		// Extracting the data from the QR code
@@ -78,11 +81,18 @@ class ScannerPage extends Component
 
 	scanFailure(error)
 	{
-		if (error == "Already Scanned")
+		switch (error)
 		{
-			// TODO: display "Already scanned by <organizer>"
+			case "Already Scanned":
+				// TODO: place "Already scanned by <organizer>" in history
+				break;
+			case "Invalid Badge":
+				// TODO: place "Not a valid cuBadge" in history
+				break;
+			case "Not Registered":
+				// TODO: please register this badge before using it
 		}
-		
+
 		// Displaying a flashing red indicator
 		this.setState({displayIndicator: true, indicatorColor: red});
 
