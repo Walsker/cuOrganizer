@@ -56,11 +56,11 @@ class ScannerPage extends Component
 
 	scanSuccess(hackerID)
 	{
-		// TODO: set scanned to true and provide org name
+		// Telling firebase that this code has been scanned
 		firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + hackerID).set({
 			scanned: true,
 			organizer: this.props.organizerName,
-			time: 111
+			time: 111 // TODO: Provide actual time stamp
 		});
 		// TODO: get hacker name and save to history
 
@@ -78,6 +78,11 @@ class ScannerPage extends Component
 
 	scanFailure(error)
 	{
+		if (error == "Already Scanned")
+		{
+			// TODO: display "Already scanned by <organizer>"
+		}
+		
 		// Displaying a flashing red indicator
 		this.setState({displayIndicator: true, indicatorColor: red});
 
