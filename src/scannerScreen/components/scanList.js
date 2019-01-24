@@ -2,6 +2,10 @@
 import React, {Component} from 'react';
 import {Alert, ScrollView, StyleSheet, Text, View} from 'react-native';
 
+// Firebase imports
+import firebase from '@firebase/app';
+import '@firebase/database';
+
 // Redux imports
 import {connect} from 'react-redux';
 import {undoScan} from '../actions';
@@ -12,6 +16,19 @@ import {IconButton} from 'cuOrganizer/src/common';
 
 class ScanList extends Component
 {
+	undoScan(id)
+	{
+		// Telling firebase to set the scan back to false
+		firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + id).set({
+			scanned: false,
+			organizer: "",
+			time: ""
+		});
+
+		// Undoing the scan locally
+		this.props.undoScan(this.props.selectedEvent, id);
+	}
+
 	createItem(hacker)
 	{
 		var onPress = () =>
@@ -20,7 +37,7 @@ class ScanList extends Component
 				"Undo Scan",
 				"Are you sure?\nOnly undo if absolutely necessary.",
 				[
-					{text: 'Undo', onPress: () => this.props.undoScan(this.props.event, hacker.id)},
+					{text: 'Undo', onPress: () => this.undoScan(hacker.id)},
 					{text: 'Cancel', onPress: () => {}}
 				]
 			);

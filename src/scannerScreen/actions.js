@@ -1,7 +1,3 @@
-// Firebase imports
-import firebase from '@firebase/app';
-import '@firebase/database';
-
 // Redux imports
 import * as ACTION_TYPES from './actionTypes';
 
