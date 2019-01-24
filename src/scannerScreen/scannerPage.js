@@ -60,7 +60,6 @@ class ScannerPage extends Component
 
 	processCode(code)
 	{
-		console.log("Processing...", code.data);
 		// Extracting the data from the QR code
 		var data = code.data.split("|");
 
@@ -69,7 +68,6 @@ class ScannerPage extends Component
 
 		const checkIfRegistered = (snapshot) =>
 		{
-			console.log("Checking if registered...");
 			// Checking if this badge is registered
 			if (!snapshot.val().scanned)
 				this.scanFailure("Not Registered");
@@ -79,7 +77,6 @@ class ScannerPage extends Component
 
 		const checkIfUsed = (snapshot) =>
 		{
-			console.log("Checking if already scanned...");
 			// Checking if this badge has already been scanned
 			if (snapshot.val().scanned)
 				this.scanFailure("Already Scanned");
@@ -96,7 +93,6 @@ class ScannerPage extends Component
 
 	scanSuccess(hackerID, firstName, lastName)
 	{
-		console.log("SUCCESS!", firstName);
 		// Making an undo button
 		this.props.doScan(this.props.selectedEvent, {id: hackerID, firstName, lastName});
 
@@ -171,7 +167,7 @@ class ScannerPage extends Component
 
 	render()
 	{
-		var {width, height} = Dimensions.get('screen');
+		var {height} = Dimensions.get('screen');
 
 		return (
 			<ScrollView

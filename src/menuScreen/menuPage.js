@@ -55,6 +55,16 @@ class MenuPage extends Component
 				<View style = {containerStyle.pageSection}>
 					{eventButtons}
 				</View>
+				<Divider color = {colors.dividerColor}/>
+				<View style = {containerStyle.pageSection}>
+					<Button
+						label = "Refresh"
+						color = 'white'
+						labelColor = {colors.primaryColor}
+						inverted = {false}
+						action = {() => this.props.navigation.navigate("Loading")}
+					/>
+				</View>
 			</View>
 		);
 	}
