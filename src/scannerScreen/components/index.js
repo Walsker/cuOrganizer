@@ -1,3 +1,3 @@
-import ScanHistory from './scanHistory';
+import ScanList from './scanList';
 
-export {ScanHistory};
+export {ScanList};

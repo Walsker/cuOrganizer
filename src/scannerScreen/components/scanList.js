@@ -4,13 +4,13 @@ import {Alert, ScrollView, StyleSheet, Text, View} from 'react-native';
 
 // Redux imports
 import {connect} from 'react-redux';
-import {undoScan} from './actions';
+import {undoScan} from '../actions';
 
 // Custom imports
 import {colors, textStyle} from 'cuOrganizer/src/common/appStyles';
 import {IconButton} from 'cuOrganizer/src/common';
 
-export default class ScanHistory extends Component
+class ScanList extends Component
 {
 	createItem(hacker)
 	{
@@ -20,7 +20,7 @@ export default class ScanHistory extends Component
 				"Undo Scan",
 				"Are you sure?\nOnly undo if absolutely necessary.",
 				[
-					{text: 'Undo', onPress: () => this.props.removeScan(hacker.id)},
+					{text: 'Undo', onPress: () => this.props.undoScan(this.props.event, hacker.id)},
 					{text: 'Cancel', onPress: () => {}}
 				]
 			);
@@ -51,7 +51,8 @@ export default class ScanHistory extends Component
 
 	render()
 	{
-		var scanItems = this.props.history.map(x => this.createItem(x));
+		console.log(this.props.scanHistory, this.props.selectedEvent);
+		var scanItems = this.props.scanHistory[this.props.selectedEvent].map(x => this.createItem(x));
 
 		return (
 			<ScrollView style = {{marginBottom: -1}}>
@@ -64,10 +65,11 @@ export default class ScanHistory extends Component
 const mapStateToProps = (state) =>
 {
 	return {
-		scanHistory: state.scanHistory
+		scanHistory: state.scanHistory,
+		selectedEvent: state.selectedEvent
 	};
 }
-export default connect(mapStateToProps, {undoScan})(ScanHistory);
+export default connect(mapStateToProps, {undoScan})(ScanList);
 
 
 const localStyle = StyleSheet.create(

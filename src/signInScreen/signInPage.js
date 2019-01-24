@@ -50,6 +50,7 @@ class SignInPage extends Component
 					<TextField
 						fontSize = {24}
 						label = "Full Name"
+						autoCapitalize = 'words'
 						defaultValue = {this.state.fullNameText}
 						textAlign = 'center'
 						textColor = {colors.primaryTextColor}

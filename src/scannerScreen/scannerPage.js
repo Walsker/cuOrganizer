@@ -5,6 +5,7 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 
 // Redux imports
 import {connect} from 'react-redux';
+import {doScan} from './actions';
 
 // Firebase imports
 import firebase from '@firebase/app';
@@ -12,9 +13,9 @@ import '@firebase/database';
 
 // Custom imports
 import BADGE_KEY from 'cuOrganizer/$badge';
-import {colors, textStyle} from 'cuOrganizer/src/common/appStyles';
+import {colors} from 'cuOrganizer/src/common/appStyles';
 import {ActionBar, IconButton} from 'cuOrganizer/src/common';
-import {ScanHistory} from './components';
+import {ScanList} from './components';
 
 class ScannerPage extends Component
 {
@@ -29,24 +30,7 @@ class ScannerPage extends Component
 		{
 			showHistory: false,
 			displayIndicator: false,
-			indicatorColor: 'transparent',
-			scanHistory:
-			[
-				{id: '0', firstName: "Alex", lastName: "Beattie"},
-				{id: '1', firstName: "Wal", lastName: "Wal"},
-				{id: '2', firstName: "John", lastName: "Doe"},
-				{id: '3', firstName: "Alex", lastName: "Beattie"},
-				{id: '4', firstName: "Yves", lastName: "Ndira"},
-				{id: '5', firstName: "Stefany", lastName: "Donis"},
-				{id: '6', firstName: "Joseph", lastName: "Saba"},
-				{id: '7', firstName: "Nnamdi", lastName: "Okoye"},
-				{id: '8', firstName: "Wal", lastName: "Wal"},
-				{id: '9', firstName: "John", lastName: "Doe"},
-				{id: '10', firstName: "Yves", lastName: "Ndira"},
-				{id: '11', firstName: "Stefany", lastName: "Donis"},
-				{id: '12', firstName: "Joseph", lastName: "Saba"},
-				{id: '13', firstName: "Nnamdi", lastName: "Okoye"}
-			]
+			indicatorColor: 'transparent'
 		};
 	}
 
@@ -61,7 +45,10 @@ class ScannerPage extends Component
 			else
 			{
 				// TODO: check if this badge is registered, then
-				this.scanSuccess(data[1]);
+
+				// Getting the name of the person scanned
+				firebase.database().ref('/hackers/' + data[1]).once('value')
+				.then(snapshot => this.scanSuccess(data[1], snapshot.val().firstName, snapshot.val().lastName));
 			}
 		};
 
@@ -75,15 +62,17 @@ class ScannerPage extends Component
 			firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + data[1]).once('value').then(checkIfScanned).catch(error => alert(error));
 	}
 
-	scanSuccess(hackerID)
+	scanSuccess(hackerID, firstName, lastName)
 	{
+		// Making an undo button
+		this.props.doScan(this.props.selectedEvent, {id: hackerID, firstName, lastName});
+		
 		// Telling firebase that this code has been scanned
 		firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + hackerID).set({
 			scanned: true,
 			organizer: this.props.organizerName,
 			time: 111 // TODO: Provide actual time stamp
 		});
-		// TODO: get hacker name and save to history
 
 		// Displaying a green indicator
 		this.setState({displayIndicator: true, indicatorColor: green});
@@ -151,18 +140,6 @@ class ScannerPage extends Component
 		);
 	}
 
-	undoScan(hackerID)
-	{
-		// TODO: set scanned of hackerID to false in firebase
-		var newHistory = [];
-		for (var scan in this.state.scanHistory)
-		{
-			if (this.state.scanHistory[scan].id != hackerID)
-				newHistory.push(this.state.scanHistory[scan]);
-		}
-		this.setState({scanHistory: newHistory});
-	}
-
 	render()
 	{
 		var {width, height} = Dimensions.get('screen');
@@ -206,10 +183,7 @@ class ScannerPage extends Component
 						rightButton = {this.renderHistoryButton()}
 					/>
 					<View style = {localStyle.scanHistory}>
-						<ScanHistory
-							history = {this.state.scanHistory}
-							removeScan = {this.undoScan.bind(this)}
-						/>
+						<ScanList/>
 					</View>
 				</View>
 			</ScrollView>
@@ -225,7 +199,7 @@ const mapStateToProps = (state) =>
 		selectedEvent: state.selectedEvent
 	};
 }
-export default connect(mapStateToProps)(ScannerPage);
+export default connect(mapStateToProps, {doScan})(ScannerPage);
 
 const green = '#00FF00';
 const red = '#FF0000';

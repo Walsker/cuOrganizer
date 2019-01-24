@@ -5,6 +5,7 @@ import {ActivityIndicator, Alert, StyleSheet, View} from 'react-native';
 // Redux imports
 import {connect} from 'react-redux';
 import {updateEventTypes} from './actions';
+import {initiateHistory} from 'cuOrganizer/src/scannerScreen/actions';
 
 // Firebase imports
 import firebase from '@firebase/app';
@@ -69,8 +70,9 @@ class LoadingPage extends Component
 	{
 		var toMainApp = (eventTypes) =>
 		{
-			// Updating the list of event types
+			// Updating the list of event types and initiating the scan history lists
 			this.props.updateEventTypes(eventTypes);
+			this.props.initiateHistory(eventTypes);
 			
 			// Moving to the main menu
 			this.props.navigation.navigate("Main");
@@ -123,7 +125,7 @@ const mapStateToProps = (state) =>
 {
 	return {organizerName: state.organizerName};
 };
-export default connect(mapStateToProps, {updateEventTypes})(LoadingPage);
+export default connect(mapStateToProps, {updateEventTypes, initiateHistory})(LoadingPage);
 
 
 const localStyle = StyleSheet.create(
