@@ -1,6 +1,6 @@
 // React Native imports
 import React, {Component} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {Text, View} from 'react-native';
 
 // Redux imports
 import {connect} from 'react-redux';
@@ -11,7 +11,7 @@ import {colors, containerStyle, textStyle} from 'cuOrganizer/src/common/appStyle
 import {Button, Divider, PagePadding} from 'cuOrganizer/src/common';
 
 class MenuPage extends Component
-{	
+{
 	createEventButton(eventKey, eventName)
 	{
 		const toScanner = () =>

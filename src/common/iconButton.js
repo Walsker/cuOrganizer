@@ -73,12 +73,12 @@ export default class IconButton extends Component
 				>
 					<View style = {{
 						margin: 12,
-						backgroundColor: 'red'
+						// backgroundColor: 'red'
 					}}>
 						<Icon
 							name = {this.props.type}
 							size = {this.props.size}
-							color = {'red'}
+							color = {this.props.color}
 						/>
 					</View>
 				</TouchableWithoutFeedback>
@@ -88,9 +88,9 @@ export default class IconButton extends Component
 
 	render()
 	{
-		if (Platform.OS === 'ios')
+		// if (Platform.OS === 'ios')
 			return this.renderiOS();
-		else
-			return this.renderAndroid();
+		// else
+		// 	return this.renderAndroid();
 	}
 }

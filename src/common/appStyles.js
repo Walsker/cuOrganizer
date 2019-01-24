@@ -8,7 +8,7 @@ export const colors =
 	secondarySpaceColor: '#444444',
 	primaryTextColor: '#FFFFFF',
 	secondaryTextColor: '#757575',
-	dividerColor: '#AFAFAF'
+	dividerColor: '#FFFFFF22'
 }
 
 export const containerStyle = StyleSheet.create(
@@ -19,7 +19,7 @@ export const containerStyle = StyleSheet.create(
 		flex: 1,
 		backgroundColor: colors.primarySpaceColor,
 		justifyContent: 'flex-start',
-		paddingHorizontal: 10,
+		paddingHorizontal: 16,
 		paddingTop: 10,
 		paddingBottom: 0
 	},

@@ -11,24 +11,42 @@ import firebase from '@firebase/app';
 import '@firebase/database';
 
 // Custom imports
-import {colors, textStyle} from 'cuOrganizer/src/common/appStyles';
-import {ActionBar, Button, IconButton} from 'cuOrganizer/src/common';
 import BADGE_KEY from 'cuOrganizer/$badge';
+import {colors, textStyle} from 'cuOrganizer/src/common/appStyles';
+import {ActionBar, IconButton} from 'cuOrganizer/src/common';
+import {ScanHistory} from './components';
 
 class ScannerPage extends Component
 {
 	constructor(props)
 	{
 		super(props);
-		
+
 		this.scrollRef = React.createRef();
 		this.scannerRef = React.createRef();
 
-		this.state = 
+		this.state =
 		{
 			showHistory: false,
 			displayIndicator: false,
-			indicatorColor: 'transparent'
+			indicatorColor: 'transparent',
+			scanHistory:
+			[
+				{id: '0', firstName: "Alex", lastName: "Beattie"},
+				{id: '1', firstName: "Wal", lastName: "Wal"},
+				{id: '2', firstName: "John", lastName: "Doe"},
+				{id: '3', firstName: "Alex", lastName: "Beattie"},
+				{id: '4', firstName: "Yves", lastName: "Ndira"},
+				{id: '5', firstName: "Stefany", lastName: "Donis"},
+				{id: '6', firstName: "Joseph", lastName: "Saba"},
+				{id: '7', firstName: "Nnamdi", lastName: "Okoye"},
+				{id: '8', firstName: "Wal", lastName: "Wal"},
+				{id: '9', firstName: "John", lastName: "Doe"},
+				{id: '10', firstName: "Yves", lastName: "Ndira"},
+				{id: '11', firstName: "Stefany", lastName: "Donis"},
+				{id: '12', firstName: "Joseph", lastName: "Saba"},
+				{id: '13', firstName: "Nnamdi", lastName: "Okoye"}
+			]
 		};
 	}
 
@@ -49,7 +67,7 @@ class ScannerPage extends Component
 
 		// Extracting the data from the QR code
 		var data = code.data.split("|");
-		
+
 		// Checking if the QR code is in the correct format
 		if (data[0] != BADGE_KEY || data[1] == null)
 			this.scanFailure("Invalid Badge");
@@ -69,11 +87,11 @@ class ScannerPage extends Component
 
 		// Displaying a green indicator
 		this.setState({displayIndicator: true, indicatorColor: green});
-		setTimeout(() => 
+		setTimeout(() =>
 		{
 			// Turning off the indicator
 			this.setState({displayIndicator: false});
-			
+
 			// Turning the scanner back on after a cooldown time
 			setTimeout(() => this.scannerRef.current.reactivate(), 1000);
 		}, 500);
@@ -97,7 +115,7 @@ class ScannerPage extends Component
 		this.setState({displayIndicator: true, indicatorColor: red});
 
 		var flasher = setInterval(() => this.setState(prevState => {return {displayIndicator: !prevState.displayIndicator}}), 100);
-		setTimeout(() => 
+		setTimeout(() =>
 		{
 			// Turning off the indicator
 			clearInterval(flasher);
@@ -133,6 +151,18 @@ class ScannerPage extends Component
 		);
 	}
 
+	undoScan(hackerID)
+	{
+		// TODO: set scanned of hackerID to false in firebase
+		var newHistory = [];
+		for (var scan in this.state.scanHistory)
+		{
+			if (this.state.scanHistory[scan].id != hackerID)
+				newHistory.push(this.state.scanHistory[scan]);
+		}
+		this.setState({scanHistory: newHistory});
+	}
+
 	render()
 	{
 		var {width, height} = Dimensions.get('screen');
@@ -142,6 +172,7 @@ class ScannerPage extends Component
 				ref = {this.scrollRef}
 				scrollsToTop = {false}
 				scrollEnabled = {false}
+				nestedScrollEnabled = {true}
 				showsVerticalScrollIndicator = {false}
 				showsHorizontalScrollIndicator = {false}
 			>
@@ -163,7 +194,7 @@ class ScannerPage extends Component
 						title = {this.props.eventTypes[this.props.selectedEvent]}
 						lifted = {true}
 						inverted = {false}
-						leftButton = 
+						leftButton =
 						{
 							<IconButton
 								type = 'arrow-back'
@@ -174,15 +205,11 @@ class ScannerPage extends Component
 						}
 						rightButton = {this.renderHistoryButton()}
 					/>
-					<View style = {localStyle.scanList}>
-						<Button
-							label = "Scroll to Top"
-							color = 'white'
-							labelColor = {colors.primaryColor}
-							inverted = {false}
-							action = {() => this.scrollRef.current.scrollTo({x: 0, y: 0, animated: true})}
+					<View style = {localStyle.scanHistory}>
+						<ScanHistory
+							history = {this.state.scanHistory}
+							removeScan = {this.undoScan.bind(this)}
 						/>
-						<Text style = {textStyle.light(21, 'center')}>Scan history</Text>
 					</View>
 				</View>
 			</ScrollView>
@@ -204,6 +231,7 @@ const green = '#00FF00';
 const red = '#FF0000';
 const localStyle = StyleSheet.create(
 {
+	camera: {height: '100%'},
 	cameraSpace:
 	{
 		flex: 0.1,
@@ -219,12 +247,11 @@ const localStyle = StyleSheet.create(
 		borderRightWidth: 35,
 		position: 'absolute',
 		elevation: 10
-	},	
-	scanList:
+	},
+	scanHistory:
 	{
 		flex: 1,
 		backgroundColor: colors.primarySpaceColor,
-		justifyContent: 'flex-end'
-	},
-	camera: {height: '100%'}
+		justifyContent: 'flex-start'
+	}
 });
