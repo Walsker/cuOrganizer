@@ -1,6 +1,6 @@
 // React imports
 import React, {Component} from 'react';
-import {Dimensions, ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {Alert, Dimensions, ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
 // Redux imports
@@ -34,39 +34,72 @@ class ScannerPage extends Component
 		};
 	}
 
+	showAlert(type, callback)
+	{
+		switch (type)
+		{
+			case "Invalid Badge":
+				Alert.alert(
+					"Not a cuBadge",
+					"This code is not from cuHacking.\nBe careful of what you scan",
+					[{text: 'OK', onPress: callback}],
+					{cancelable: false}
+				);
+				return;
+
+			case "Not Registered":
+				Alert.alert(
+					"Unregistered Badge",
+					"Please register this badge before using it for other events.",
+					[{text: 'OK', onPress: callback}],
+					{cancelable: false}
+				);
+				return;
+		}
+	}
+
 	processCode(code)
 	{
-		const checkIfScanned = (snapshot) =>
+		console.log("Processing...", code.data);
+		// Extracting the data from the QR code
+		var data = code.data.split("|");
+
+		const success = (snapshot) => this.scanSuccess(data[1], snapshot.val().firstName, snapshot.val().lastName);
+		const getHackerInfo = () => firebase.database().ref('/hackers/' + data[1]).once('value').then(success).catch(error => alert(error));
+
+		const checkIfRegistered = (snapshot) =>
 		{
+			console.log("Checking if registered...");
+			// Checking if this badge is registered
+			if (!snapshot.val().scanned)
+				this.scanFailure("Not Registered");
+			else
+				getHackerInfo();
+		};
+
+		const checkIfUsed = (snapshot) =>
+		{
+			console.log("Checking if already scanned...");
 			// Checking if this badge has already been scanned
-			console.log(snapshot.val().scanned);
 			if (snapshot.val().scanned)
 				this.scanFailure("Already Scanned");
 			else
-			{
-				// TODO: check if this badge is registered, then
-
-				// Getting the name of the person scanned
-				firebase.database().ref('/hackers/' + data[1]).once('value')
-				.then(snapshot => this.scanSuccess(data[1], snapshot.val().firstName, snapshot.val().lastName));
-			}
+				firebase.database().ref('/badgeChecks/registration/' + data[1]).once('value').then(this.props.selectedEvent == 'registration' ? getHackerInfo : checkIfRegistered).catch(error => alert(error));
 		};
-
-		// Extracting the data from the QR code
-		var data = code.data.split("|");
 
 		// Checking if the QR code is in the correct format
 		if (data[0] != BADGE_KEY || data[1] == null)
 			this.scanFailure("Invalid Badge");
 		else
-			firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + data[1]).once('value').then(checkIfScanned).catch(error => alert(error));
+			firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + data[1]).once('value').then(checkIfUsed).catch(error => alert(error));
 	}
 
 	scanSuccess(hackerID, firstName, lastName)
 	{
+		console.log("SUCCESS!", firstName);
 		// Making an undo button
 		this.props.doScan(this.props.selectedEvent, {id: hackerID, firstName, lastName});
-		
+
 		// Telling firebase that this code has been scanned
 		firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + hackerID).set({
 			scanned: true,
@@ -88,16 +121,12 @@ class ScannerPage extends Component
 
 	scanFailure(error)
 	{
-		switch (error)
+		// Showing the appropriate alert
+		var useCooldown = true;
+		if (error == "Invalid Badge" || error == "Not Registered")
 		{
-			case "Already Scanned":
-				// TODO: place "Already scanned by <organizer>" in history
-				break;
-			case "Invalid Badge":
-				// TODO: place "Not a valid cuBadge" in history
-				break;
-			case "Not Registered":
-				// TODO: please register this badge before using it
+			this.showAlert(error, () => this.scannerRef.current.reactivate());
+			useCooldown = false;
 		}
 
 		// Displaying a flashing red indicator
@@ -111,7 +140,7 @@ class ScannerPage extends Component
 			this.setState({displayIndicator: false});
 
 			// Turning the scanner back on after a cooldown time
-			setTimeout(() => this.scannerRef.current.reactivate(), 1000);
+			if (useCooldown) setTimeout(() => this.scannerRef.current.reactivate(), 1000);
 		}, 800);
 	}
 

@@ -48,15 +48,20 @@ class ScanList extends Component
 				key = {hacker.id}
 				style = {localStyle.item}
 			>
-				<View style = {localStyle.iconButton}>
-					<IconButton
-						type = 'close'
-						size = {50}
-						color = {colors.primaryColor}
-						action = {onPress}
-					/>
-				</View>
-				<View>
+				{
+					this.props.selectedEvent == 'registration' ? 
+						<View/>
+						: 
+						<View style = {localStyle.iconButton}>
+							<IconButton
+								type = 'close'
+								size = {50}
+								color = {colors.primaryColor}
+								action = {onPress}
+							/>
+						</View>
+				}
+				<View style = {localStyle.name}>
 					<Text style = {textStyle.light(24)}>{hacker.firstName}</Text>
 					<Text style = {[textStyle.light(18, 'left', colors.secondaryTextColor), {paddingLeft: 1}]}>
 						{hacker.lastName}
@@ -68,7 +73,6 @@ class ScanList extends Component
 
 	render()
 	{
-		console.log(this.props.scanHistory, this.props.selectedEvent);
 		var scanItems = this.props.scanHistory[this.props.selectedEvent].map(x => this.createItem(x));
 
 		return (
@@ -99,6 +103,10 @@ const localStyle = StyleSheet.create(
 		borderBottomWidth: 1,
 		borderColor: colors.dividerColor
 	},
+	name:
+	{
+		padding: 16
+	},
 	scanList:
 	{
 		justifyContent: 'flex-start'
@@ -106,6 +114,7 @@ const localStyle = StyleSheet.create(
 	iconButton:
 	{
 		margin: -12,
-		padding: 16
+		padding: 16,
+		paddingLeft: 0
 	}
 });
