@@ -2,6 +2,10 @@
 import React, {Component} from 'react';
 import {Alert, ScrollView, StyleSheet, Text, View} from 'react-native';
 
+// Redux imports
+import {connect} from 'react-redux';
+import {undoScan} from './actions';
+
 // Custom imports
 import {colors, textStyle} from 'cuOrganizer/src/common/appStyles';
 import {IconButton} from 'cuOrganizer/src/common';
@@ -21,7 +25,7 @@ export default class ScanHistory extends Component
 				]
 			);
 		};
-		console.log(hacker);
+
 		return (
 			<View
 				key = {hacker.id}
@@ -56,6 +60,15 @@ export default class ScanHistory extends Component
 		);
 	}
 }
+
+const mapStateToProps = (state) =>
+{
+	return {
+		scanHistory: state.scanHistory
+	};
+}
+export default connect(mapStateToProps, {undoScan})(ScanHistory);
+
 
 const localStyle = StyleSheet.create(
 {
