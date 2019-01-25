@@ -13,6 +13,7 @@ import '@firebase/database';
 
 // Custom imports
 import BADGE_KEY from 'cuOrganizer/$badge';
+import INVITE_KEY from 'cuOrganizer/$invite';
 import {colors} from 'cuOrganizer/src/common/appStyles';
 import {ActionBar, IconButton} from 'cuOrganizer/src/common';
 import {ScanList} from './components';
@@ -38,6 +39,15 @@ class ScannerPage extends Component
 	{
 		switch (type)
 		{
+			case "Invite Code":
+				Alert.alert(
+					"Invite Code",
+					"Inform the hacker that they need to scan this code with their app",
+					[{text: 'OK', onPress: callback}],
+					{cancelable: false}
+				);
+				return;
+
 			case "Invalid Badge":
 				Alert.alert(
 					"Not a cuBadge",
@@ -86,7 +96,12 @@ class ScannerPage extends Component
 
 		// Checking if the QR code is in the correct format
 		if (data[0] != BADGE_KEY || data[1] == null)
-			this.scanFailure("Invalid Badge");
+		{
+			if (data[0] == INVITE_KEY)
+				this.scanFailure("Invite Code");
+			else
+				this.scanFailure("Invalid Badge");
+		}
 		else
 			firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + data[1]).once('value').then(checkIfUsed).catch(error => alert(error));
 	}
@@ -119,7 +134,7 @@ class ScannerPage extends Component
 	{
 		// Showing the appropriate alert
 		var useCooldown = true;
-		if (error == "Invalid Badge" || error == "Not Registered")
+		if (error == "Invalid Badge" || error == "Not Registered"|| error == "Invite Code")
 		{
 			this.showAlert(error, () => this.scannerRef.current.reactivate());
 			useCooldown = false;
