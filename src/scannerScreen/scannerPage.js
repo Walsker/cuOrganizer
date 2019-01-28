@@ -1,6 +1,6 @@
 // React imports
 import React, {Component} from 'react';
-import {Alert, Dimensions, ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {Alert, Dimensions, ScrollView, StatusBar, StyleSheet, View} from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
 // Redux imports
@@ -16,7 +16,7 @@ import BADGE_KEY from 'cuOrganizer/$badge';
 import INVITE_KEY from 'cuOrganizer/$invite';
 import {colors} from 'cuOrganizer/src/common/appStyles';
 import {ActionBar, IconButton} from 'cuOrganizer/src/common';
-import {ScanList} from './components';
+import {CameraMarker, ScanList} from './components';
 
 class ScannerPage extends Component
 {
@@ -30,6 +30,7 @@ class ScannerPage extends Component
 		this.state =
 		{
 			showHistory: false,
+			scanStatus: 'IDLE',
 			displayIndicator: false,
 			indicatorColor: 'transparent'
 		};
@@ -39,6 +40,15 @@ class ScannerPage extends Component
 	{
 		switch (type)
 		{
+			case "Already Scanned":
+				Alert.alert(
+					"Already Scanned",
+					"This cuBadge has already been scanned",
+					[{text: 'OK', onPress: callback}],
+					{cancelable: false}
+				);
+				return;
+
 			case "Invite Code":
 				Alert.alert(
 					"Invite Code",
@@ -60,7 +70,7 @@ class ScannerPage extends Component
 			case "Not Registered":
 				Alert.alert(
 					"Unregistered Badge",
-					"Please register this badge before using it for other events.",
+					"Please register this cuBadge before using it for other events",
 					[{text: 'OK', onPress: callback}],
 					{cancelable: false}
 				);
@@ -70,10 +80,21 @@ class ScannerPage extends Component
 
 	processCode(code)
 	{
+		// Inidicating that the code is being processed
+		this.setState({scanStatus: 'LOADING'});
+
 		// Extracting the data from the QR code
 		var data = code.data.split("|");
 
-		const success = (snapshot) => this.scanSuccess(data[1], snapshot.val().firstName, snapshot.val().lastName);
+		const success = (snapshot) => 
+		{
+			// Telling firebase that this code has been scanned
+			firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + data[1]).set({
+				scanned: true,
+				organizer: this.props.organizerName,
+				time: 111 // TODO: Provide actual time stamp
+			}).then(() => this.scanSuccess(data[1], snapshot.val().firstName, snapshot.val().lastName));
+		};
 		const getHackerInfo = () => firebase.database().ref('/hackers/' + data[1]).once('value').then(success).catch(error => alert(error));
 
 		const checkIfRegistered = (snapshot) =>
@@ -108,51 +129,33 @@ class ScannerPage extends Component
 
 	scanSuccess(hackerID, firstName, lastName)
 	{
-		// Making an undo button
-		this.props.doScan(this.props.selectedEvent, {id: hackerID, firstName, lastName});
-
-		// Telling firebase that this code has been scanned
-		firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + hackerID).set({
-			scanned: true,
-			organizer: this.props.organizerName,
-			time: 111 // TODO: Provide actual time stamp
-		});
-
-		// Displaying a green indicator
-		this.setState({displayIndicator: true, indicatorColor: green});
+		// Inidicating the successful scan
+		this.setState({scanStatus: 'SUCCESS'});
 		setTimeout(() =>
 		{
 			// Turning off the indicator
-			this.setState({displayIndicator: false});
+			this.setState({scanStatus: 'IDLE'});	
 
 			// Turning the scanner back on after a cooldown time
 			setTimeout(() => this.scannerRef.current.reactivate(), 1000);
 		}, 500);
+
+		// Making an undo button
+		this.props.doScan(this.props.selectedEvent, {id: hackerID, firstName, lastName});
 	}
 
 	scanFailure(error)
 	{
+		// Indicating an unsuccessful scan
+		this.setState({scanStatus: 'FAILURE'});
+
 		// Showing the appropriate alert
-		var useCooldown = true;
-		if (error == "Invalid Badge" || error == "Not Registered"|| error == "Invite Code")
+		this.showAlert(error, () => 
 		{
-			this.showAlert(error, () => this.scannerRef.current.reactivate());
-			useCooldown = false;
-		}
-
-		// Displaying a flashing red indicator
-		this.setState({displayIndicator: true, indicatorColor: red});
-
-		var flasher = setInterval(() => this.setState(prevState => {return {displayIndicator: !prevState.displayIndicator}}), 100);
-		setTimeout(() =>
-		{
-			// Turning off the indicator
-			clearInterval(flasher);
-			this.setState({displayIndicator: false});
-
-			// Turning the scanner back on after a cooldown time
-			if (useCooldown) setTimeout(() => this.scannerRef.current.reactivate(), 1000);
-		}, 800);
+			// Turning the scanner back on
+			this.setState({scanStatus: 'IDLE'});
+			this.scannerRef.current.reactivate();
+		});
 	}
 
 	renderHistoryButton()
@@ -201,8 +204,10 @@ class ScannerPage extends Component
 					{this.state.displayIndicator ? <View style = {[localStyle.indicator, {borderColor: this.state.indicatorColor}]}/> : <View/>}
 					<QRCodeScanner
 						ref = {this.scannerRef}
-						fadeIn = {false}
 						onRead = {this.processCode.bind(this)}
+						fadeIn = {false}
+						showMarker = {true}
+						customMarker = {<CameraMarker mode = {this.state.scanStatus}/>}
 						cameraStyle = {localStyle.camera}
 					/>
 				</View>
@@ -243,9 +248,11 @@ export default connect(mapStateToProps, {doScan})(ScannerPage);
 
 const green = '#00FF00';
 const red = '#FF0000';
+
 const localStyle = StyleSheet.create(
 {
 	camera: {height: '100%'},
+	cameraMarker: {borderColor: 'white'},
 	cameraSpace:
 	{
 		flex: 0.1,

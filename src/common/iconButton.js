@@ -71,10 +71,7 @@ export default class IconButton extends Component
 					onPressIn = {this.onPressIn.bind(this)}
 					onPressOut = {this.onRelease.bind(this)}
 				>
-					<View style = {{
-						margin: 12,
-						// backgroundColor: 'red'
-					}}>
+					<View style = {{margin: 12}}>
 						<Icon
 							name = {this.props.type}
 							size = {this.props.size}
@@ -88,9 +85,9 @@ export default class IconButton extends Component
 
 	render()
 	{
-		// if (Platform.OS === 'ios')
+		if (Platform.OS === 'ios')
 			return this.renderiOS();
-		// else
-		// 	return this.renderAndroid();
+		else
+			return this.renderAndroid();
 	}
 }

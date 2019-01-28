@@ -1,3 +1,4 @@
+import CameraMarker from './cameraMarker';
 import ScanList from './scanList';
 
-export {ScanList};
+export {CameraMarker, ScanList};
