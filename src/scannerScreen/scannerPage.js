@@ -30,9 +30,7 @@ class ScannerPage extends Component
 		this.state =
 		{
 			showHistory: false,
-			scanStatus: 'IDLE',
-			displayIndicator: false,
-			indicatorColor: 'transparent'
+			scanStatus: 'IDLE'
 		};
 	}
 
@@ -86,7 +84,7 @@ class ScannerPage extends Component
 		// Extracting the data from the QR code
 		var data = code.data.split("|");
 
-		const success = (snapshot) => 
+		const success = (snapshot) =>
 		{
 			// Telling firebase that this code has been scanned
 			firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + data[1]).set({
@@ -134,7 +132,7 @@ class ScannerPage extends Component
 		setTimeout(() =>
 		{
 			// Turning off the indicator
-			this.setState({scanStatus: 'IDLE'});	
+			this.setState({scanStatus: 'IDLE'});
 
 			// Turning the scanner back on after a cooldown time
 			setTimeout(() => this.scannerRef.current.reactivate(), 1000);
@@ -150,7 +148,7 @@ class ScannerPage extends Component
 		this.setState({scanStatus: 'FAILURE'});
 
 		// Showing the appropriate alert
-		this.showAlert(error, () => 
+		this.showAlert(error, () =>
 		{
 			// Turning the scanner back on
 			this.setState({scanStatus: 'IDLE'});
@@ -246,8 +244,6 @@ const mapStateToProps = (state) =>
 }
 export default connect(mapStateToProps, {doScan})(ScannerPage);
 
-const green = '#00FF00';
-const red = '#FF0000';
 
 const localStyle = StyleSheet.create(
 {
