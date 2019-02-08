@@ -1,6 +1,6 @@
 // React imports
 import React, {Component} from 'react';
-import {Alert, Dimensions, ScrollView, StatusBar, StyleSheet, View} from 'react-native';
+import {Alert, Dimensions, ScrollView, StatusBar, StyleSheet, Vibration, View} from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
 // Redux imports
@@ -129,6 +129,10 @@ class ScannerPage extends Component
 	{
 		// Inidicating the successful scan
 		this.setState({scanStatus: 'SUCCESS'});
+		
+		// Vibrating the phone
+		Vibration.vibrate(200);
+		
 		setTimeout(() =>
 		{
 			// Turning off the indicator
@@ -146,7 +150,10 @@ class ScannerPage extends Component
 	{
 		// Indicating an unsuccessful scan
 		this.setState({scanStatus: 'FAILURE'});
-
+		
+		// Vibrating the phone
+		Vibration.vibrate(200);
+		
 		// Showing the appropriate alert
 		this.showAlert(error, () =>
 		{
