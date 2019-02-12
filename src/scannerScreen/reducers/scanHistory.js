@@ -13,23 +13,24 @@ export default (prevState = {}, action) =>
             var {event, entry} = action.payload;
             var updatedList = prevState[event];
             
-            console.log(prevState, action.payload);
             updatedList.push(entry);
             
-            return Object.assign({}, prevState, {[event]: updatedList});
+            return Object.assign({[event]: updatedList}, prevState);
 
         case UNDO_SCAN:
             
             // Copying over everything but the removed scan
-            var {event, id} = action.payload;
+            var {event, email} = action.payload;
             var updatedList = [];
+            console.log("UNDO: ", action.payload);
 
-            for (let entry in prevState[event])
+            for (entry of prevState[event])
             {
-                if (prevState[event][entry].id != id)
-                updatedList.push(prevState[event][entry]);
+                if (entry.email != email)
+                updatedList.push(entry);
             }
             
+            console.log(updatedList);
             return Object.assign({}, prevState, {[event]: updatedList});
 
         default:

@@ -16,7 +16,6 @@ class MenuPage extends Component
 	{
 		const toScanner = () =>
 		{
-			console.log("Selected Event: ", event)
 			this.props.selectEvent(event);
 			this.props.navigation.navigate("Scanner");
 		}

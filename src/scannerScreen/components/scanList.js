@@ -1,6 +1,6 @@
 // React imports
 import React, {Component} from 'react';
-import {Alert, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {Alert, RefreshControl, ScrollView, StyleSheet, Text, View} from 'react-native';
 
 // Redux imports
 import {connect} from 'react-redux';
@@ -15,14 +15,26 @@ import {IconButton} from 'cuOrganizer/src/common';
 
 class ScanList extends Component
 {
+	constructor(props)
+	{
+		super(props);
+		this.state = {refreshing: false};
+	}
+
+	onRefresh()
+	{
+		this.setState({refreshing: true});
+		this.setState({refreshing: false});
+	}
+
 	undoScan(email)
 	{
 		// Telling firebase to undo the scan then undoing the scan locally
-		firebase.firestore().collection("events").doc(this.props.selectedEventID).collection("scanStatus").doc(hackerEmail).set(
+		firebase.firestore().collection("events").doc(this.props.selectedEvent.id).collection("scanStatus").doc(email).set(
 		{
 			scanned: false,
 			organizer: null
-		}).then(() => this.props.undoScan(this.props.selectedEventID, email)).catch(error => alert(error));
+		}).then(() => this.props.undoScan(this.props.selectedEvent.id, email)).catch(error => alert(error));
 	}
 
 	createItem(hacker)
@@ -45,7 +57,7 @@ class ScanList extends Component
 				style = {localStyle.item}
 			>
 				{
-					this.props.selectedEventID == 'registration' ? 
+					this.props.selectedEvent.id == 'registration' ? 
 						<View/>
 						: 
 						<View style = {localStyle.iconButton}>
@@ -70,9 +82,12 @@ class ScanList extends Component
 	render()
 	{
 		let scanItems = this.props.scanHistory.map(scanEntry => this.createItem(scanEntry));
-
+		console.log("Props: ", this.props.scanHistory);
 		return (
-			<ScrollView style = {{marginBottom: -1}}>
+			<ScrollView 
+				style = {{marginBottom: -1}}
+				refreshControl = {<RefreshControl refreshing = {this.state.refreshing} colors = {[colors.primaryColor]} onRefresh={this.onRefresh.bind(this)}/>}
+			>
 				{scanItems}
 			</ScrollView>
 		);
@@ -81,9 +96,10 @@ class ScanList extends Component
 
 const mapStateToProps = (state) =>
 {
+	console.log("State:", state.scanHistory[state.selectedEvent.id])
 	return { 
 		scanHistory: state.scanHistory[state.selectedEvent.id],
-		selectedEventID: state.selectedEvent.id
+		selectedEvent: state.selectedEvent
 	};
 }
 export default connect(mapStateToProps, {undoScan})(ScanList);

@@ -8,7 +8,6 @@ export const initiateHistory = (eventTitles) =>
     for (event of eventTitles)
         payload[event.id] = [];
 
-    console.log("HISTORY: ", eventTitles, payload);
     return {type: ACTION_TYPES.INITIATE_HISTORY, payload};
 };
 
@@ -22,10 +21,10 @@ export const logScan = (event, email, firstName, lastName) =>
 };
 
 // Creating an action that locally undoes a scan
-export const undoScan = (event, hackerID) =>
+export const undoScan = (event, hackerEmail) =>
 {
     return {
         type: ACTION_TYPES.UNDO_SCAN,
-        payload: {event, id: hackerID}
+        payload: {event, email: hackerEmail}
     };
 };

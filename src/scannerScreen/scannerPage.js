@@ -93,7 +93,6 @@ class ScannerPage extends Component
 		// Extracting the data from the QR code
 		let codeType = code.data.split("|")[0];
 		let hackerEmail = code.data.split("|")[1];
-		// let data = code.data.split("|");
 
 		const success = (document) =>
 		{
@@ -101,7 +100,7 @@ class ScannerPage extends Component
 			let {first, last} = document.data().name;
 
 			// Telling firebase that this code has been scanned
-			this.state.firestore.collection("events").doc("registration").collection("scanStatus").doc(hackerEmail).set(
+			this.state.firestore.collection("events").doc(this.props.selectedEvent.id).collection("scanStatus").doc(hackerEmail).set(
 			{
 				scanned: true,
 				organizer: this.props.organizerName
@@ -158,7 +157,6 @@ class ScannerPage extends Component
 		else
 		{
 			// Checking if the badge has been scanned before
-			console.log(this.props.selectedEvent.id, hackerEmail);
 			this.state.firestore.collection("events").doc(this.props.selectedEvent.id).collection("scanStatus").doc(hackerEmail).get().then(checkIfUsed).catch(error =>
 			{
 				console.log("Tried to get the hacker's scan status.", error);
@@ -237,7 +235,7 @@ class ScannerPage extends Component
 	render()
 	{
 		let {height} = Dimensions.get('screen');
-
+		console.log("Render");
 		return (
 			<ScrollView
 				ref = {this.scrollRef}
@@ -280,7 +278,7 @@ class ScannerPage extends Component
 						rightButton = {this.renderHistoryButton()}
 					/>
 					<View style = {localStyle.scanHistory}>
-						{/* <ScanList/> */}
+						<ScanList/>
 					</View>
 				</View>
 			</ScrollView>
