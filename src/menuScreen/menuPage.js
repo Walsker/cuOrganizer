@@ -35,10 +35,7 @@ class MenuPage extends Component
 	render()
 	{
 		let firstName = (this.props.organizerName.split(" "))[0];
-		let eventButtons = [];
-
-		for (let event in this.props.eventTypes)
-			eventButtons.push(this.createEventButton(event, this.props.eventTypes[event]));
+		let eventButtons = this.props.eventTitles.map(event => this.createEventButton(event.id, event.title));
 
 		return (
 			<View style = {containerStyle.page}>
@@ -74,7 +71,7 @@ const mapStateToProps = (state) =>
 {
 	return {
 		organizerName: state.organizerName,
-		eventTypes: state.eventTypes
+		eventTitles: state.eventTitles
 	};
 }
 export default connect(mapStateToProps, {selectEvent})(MenuPage);

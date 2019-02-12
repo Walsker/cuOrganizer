@@ -217,7 +217,7 @@ class ScannerPage extends Component
 				</View>
 				<View style = {{height: height - StatusBar.currentHeight}}>
 					<ActionBar
-						title = {this.props.eventTypes[this.props.selectedEvent]}
+						title = {this.props.eventTitles[this.props.selectedEvent]}
 						lifted = {true}
 						inverted = {false}
 						leftButton =
@@ -243,7 +243,7 @@ class ScannerPage extends Component
 const mapStateToProps = (state) =>
 {
 	return {
-		eventTypes: state.eventTypes,
+		eventTitles: state.eventTitles,
 		organizerName: state.organizerName,
 		selectedEvent: state.selectedEvent
 	};

@@ -2,10 +2,10 @@
 import * as ACTION_TYPES from './actionTypes';
 
 // Creating an action that creates an empty scanHistory
-export const initiateHistory = (eventTypes) =>
+export const initiateHistory = (eventTitles) =>
 {
     let payload = {};
-    for (let event in eventTypes)
+    for (let event in eventTitles)
         payload[event] = [];
 
     return {type: ACTION_TYPES.INITIATE_HISTORY, payload};

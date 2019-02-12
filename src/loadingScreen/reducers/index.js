@@ -1,3 +1,3 @@
-import eventTypes from './eventTypes';
+import eventTitles from './eventTitles';
 
-export default {eventTypes};
+export default {eventTitles};
