@@ -82,7 +82,6 @@ class ScanList extends Component
 	render()
 	{
 		let scanItems = this.props.scanHistory.map(scanEntry => this.createItem(scanEntry));
-		console.log("Props: ", this.props.scanHistory);
 		return (
 			<ScrollView 
 				style = {{marginBottom: -1}}
@@ -96,7 +95,6 @@ class ScanList extends Component
 
 const mapStateToProps = (state) =>
 {
-	console.log("State:", state.scanHistory[state.selectedEvent.id])
 	return { 
 		scanHistory: state.scanHistory[state.selectedEvent.id],
 		selectedEvent: state.selectedEvent

@@ -73,7 +73,7 @@ class ScannerPage extends Component
 					{cancelable: false}
 				);
 				return;
-			
+
 			case "Catch":
 				Alert.alert(
 					"Something went wrong",
@@ -110,7 +110,7 @@ class ScannerPage extends Component
 				this.scanFailure("Catch");
 			});
 		};
-		
+
 		const getHackerName = () =>
 		{
 			this.state.firestore.collection("hackers").doc(hackerEmail).get().then(success).catch(error =>
@@ -171,10 +171,10 @@ class ScannerPage extends Component
 
 		// Inidicating the successful scan
 		this.setState({animationStatus: 'SUCCESS'});
-		
+
 		// Vibrating the phone
 		Vibration.vibrate(200);
-		
+
 		setTimeout(() =>
 		{
 			// Turning off the indicator
@@ -194,10 +194,10 @@ class ScannerPage extends Component
 
 		// Indicating an unsuccessful scan
 		this.setState({animationStatus: 'FAILURE'});
-		
+
 		// Vibrating the phone
 		Vibration.vibrate(200);
-		
+
 		// Showing the appropriate alert
 		this.showAlert(error, () =>
 		{
@@ -235,7 +235,7 @@ class ScannerPage extends Component
 	render()
 	{
 		let {height} = Dimensions.get('screen');
-		console.log("Render");
+
 		return (
 			<ScrollView
 				ref = {this.scrollRef}
