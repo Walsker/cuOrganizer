@@ -68,7 +68,7 @@ export default class Button extends Component
 
 	renderAndroid()
 	{
-		var rippleColor = this.props.inverted ?
+		let rippleColor = this.props.inverted ?
 			TouchableNativeFeedback.Ripple(this.props.color, true) : TouchableNativeFeedback.Ripple(this.props.color, true);
 
 		return (

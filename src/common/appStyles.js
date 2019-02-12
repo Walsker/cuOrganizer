@@ -32,7 +32,7 @@ export const containerStyle = StyleSheet.create(
 
 const createFont = (size, alignment, color) =>
 {
-	var style = {color: colors.primaryTextColor};
+	let style = {color: colors.primaryTextColor};
 
 	if (size)
 		style["fontSize"] = size;

@@ -12,9 +12,6 @@ import rootReducer from './_rootReducer';
 import {persistStore} from 'redux-persist';
 import {PersistGate} from 'redux-persist/integration/react'
 
-// Firebase imports
-import firebase from '@firebase/app';
-import firebaseConfig from 'cuOrganizer/firebaseConfig';
 
 // Custom imports
 import {colors, containerStyle} from 'cuOrganizer/src/common/appStyles';
@@ -25,7 +22,6 @@ export default class Root extends Component
 	componentDidMount()
 	{
 		SplashScreen.hide();
-		firebase.initializeApp(firebaseConfig);
 	}
 
 	render()

@@ -34,10 +34,10 @@ class MenuPage extends Component
 
 	render()
 	{
-		var firstName = (this.props.organizerName.split(" "))[0];
-		var eventButtons = [];
+		let firstName = (this.props.organizerName.split(" "))[0];
+		let eventButtons = [];
 
-		for (var event in this.props.eventTypes)
+		for (let event in this.props.eventTypes)
 			eventButtons.push(this.createEventButton(event, this.props.eventTypes[event]));
 
 		return (

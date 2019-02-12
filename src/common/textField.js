@@ -9,7 +9,7 @@ export default class TextField extends Component
 {
 	render()
 	{
-		var borderStyle;
+		let borderStyle;
 		if (Platform.OS === 'ios')
 			borderStyle = localStyle.roundedBox;
 		else

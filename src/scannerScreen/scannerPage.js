@@ -8,8 +8,7 @@ import {connect} from 'react-redux';
 import {doScan} from './actions';
 
 // Firebase imports
-import firebase from '@firebase/app';
-import '@firebase/database';
+import firebase from 'react-native-firebase';
 
 // Custom imports
 import BADGE_KEY from 'cuOrganizer/$badge';
@@ -82,7 +81,7 @@ class ScannerPage extends Component
 		this.setState({scanStatus: 'LOADING'});
 
 		// Extracting the data from the QR code
-		var data = code.data.split("|");
+		let data = code.data.split("|");
 
 		const success = (snapshot) =>
 		{
@@ -165,8 +164,8 @@ class ScannerPage extends Component
 
 	renderHistoryButton()
 	{
-		var iconName = (this.state.showHistory ? 'photo-camera' : 'history');
-		var toggleHistory = () =>
+		let iconName = (this.state.showHistory ? 'photo-camera' : 'history');
+		let toggleHistory = () =>
 		{
 			// Changing the toggle icon
 			if (!this.state.showHistory)
@@ -190,7 +189,7 @@ class ScannerPage extends Component
 
 	render()
 	{
-		var {height} = Dimensions.get('screen');
+		let {height} = Dimensions.get('screen');
 
 		return (
 			<ScrollView

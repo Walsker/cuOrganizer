@@ -14,8 +14,8 @@ export default class ActionBar extends Component
 {
 	render()
 	{
-		var barStyle = localStyle.bar;
-		var titleStyle = localStyle.titleText;
+		let barStyle = localStyle.bar;
+		let titleStyle = localStyle.titleText;
 
 		if (this.props.inverted == true)
 		{

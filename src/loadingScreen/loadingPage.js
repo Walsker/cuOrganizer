@@ -8,12 +8,10 @@ import {updateEventTypes} from './actions';
 import {initiateHistory} from 'cuOrganizer/src/scannerScreen/actions';
 
 // Firebase imports
-import firebase from '@firebase/app';
-import '@firebase/auth';
-import '@firebase/database';
+import firebase from 'react-native-firebase';
 
 // Custom imports
-import CREDENTIALS from 'cuOrganizer/credentials';
+import CREDENTIALS from 'cuOrganizer/$adminCreds';
 import {colors} from 'cuOrganizer/src/common/appStyles';
 import {Button} from 'cuOrganizer/src/common';
 
@@ -22,7 +20,11 @@ class LoadingPage extends Component
     constructor(props)
     {
         super(props);
-        this.state = {waitingForConnection: false};
+        this.state = 
+		{
+			firestore: firebase.firestore(),
+			waitingForConnection: false
+		}
     }
 
 	displayError(type, error)
@@ -40,7 +42,7 @@ class LoadingPage extends Component
 			
 			case "Fetch Failure":
 				Alert.alert(
-					"Something went wrong",
+					"Fetch Failure",
 					"Something is seriously wrong - Message Wal right away\n\n" + error,
 					[{text: 'OK', onPress: () => this.setState({waitingForConnection: true})}],
 					{cancelable: false}
@@ -68,25 +70,66 @@ class LoadingPage extends Component
 
 	authSuccess()
 	{
-		var toMainApp = (eventTypes) =>
+		console.log("AUTH SUCCESS!");
+
+		let eventTitles = [];
+		let scanHistories = {};
+
+		const toMainApp = () =>
 		{
+			console.log("LOADING COMPLETE!");
+
 			// Updating the list of event types and initiating the scan history lists
-			this.props.updateEventTypes(eventTypes);
-			this.props.initiateHistory(eventTypes);
+			this.props.updateEventTypes(eventTitles);
+			// this.props.initiateHistory(eventTypes); //TODO: make this work
 			
 			// Moving to the main menu
 			this.props.navigation.navigate("Main");
 		};
 
+		const getScanHistory = (index) =>
+		{
+			if (eventTitles[index] == undefined) toMainApp();
+			else
+			{
+				this.state.firestore.collection("events").doc(eventTitles[index].id).collection("scanHistory").get().then(snapshot =>
+				{
+					snapshot.forEach(document =>
+					{
+						scanHistories[eventTitles[index].id] = {};
+						scanHistories[eventTitles[index].id][document.id] = document.data();
+					});
+					getScanHistory(index+1);
+				}).catch(error =>
+				{
+					console.log("Tried to get scan history.", error);
+					this.displayError("Fetch Failure");
+				});
+			}
+		};
+
 		// Getting the types of events that can be scanned for from firebase
-		firebase.database().ref("/eventTypes").once('value').then((snapshot) => toMainApp(snapshot.val())).catch((error) => this.displayError("Fetch Failure", error));
+		this.state.firestore.collection("events").get().then(snapshot =>
+		{
+			snapshot.forEach(document =>
+			{
+				let event = document.data();
+				if (event.scannable)
+					eventTitles.push({id: document.id, title: event.title});
+			});
+			getScanHistory(0);
+		}).catch(error =>
+		{
+			console.log("Tried to get events", error);
+			this.displayError("Fetch Failure");
+		});
 	}
 
 	authenticate()
 	{
 		// No longer waiting for a connection
 		this.setState({waitingForConnection: false});
-
+		console.log("AUTHENTICATING...");
 		// Sending the authentication request to firebase
 		firebase.auth().signInWithEmailAndPassword(CREDENTIALS.EMAIL, CREDENTIALS.PASSWORD).then(this.authSuccess.bind(this)).catch((error) => this.authFailure(error));
 	}

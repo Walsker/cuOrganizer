@@ -113,8 +113,8 @@ export default class CameraMarker extends Component
 
 	render()
 	{
-		var {width} = Dimensions.get('screen');
-		var boxSize = width * 0.75;
+		let {width} = Dimensions.get('screen');
+		let boxSize = width * 0.75;
 
 		switch (this.props.mode)
 		{

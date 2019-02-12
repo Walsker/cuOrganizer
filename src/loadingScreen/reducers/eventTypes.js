@@ -1,6 +1,6 @@
 import {UPDATE_EVENT_TYPES} from '../actionTypes';
 
-export default (prevState = {}, action) =>
+export default (prevState = [], action) =>
 {
     switch (action.type)
     {

@@ -2,13 +2,12 @@
 import React, {Component} from 'react';
 import {Alert, ScrollView, StyleSheet, Text, View} from 'react-native';
 
-// Firebase imports
-import firebase from '@firebase/app';
-import '@firebase/database';
-
 // Redux imports
 import {connect} from 'react-redux';
 import {undoScan} from '../actions';
+
+// Firebase imports
+import firebase from 'react-native-firebase';
 
 // Custom imports
 import {colors, textStyle} from 'cuOrganizer/src/common/appStyles';
@@ -31,7 +30,7 @@ class ScanList extends Component
 
 	createItem(hacker)
 	{
-		var onPress = () =>
+		let onPress = () =>
 		{
 			Alert.alert(
 				"Undo Scan",
@@ -73,7 +72,7 @@ class ScanList extends Component
 
 	render()
 	{
-		var scanItems = this.props.scanHistory[this.props.selectedEvent].map(x => this.createItem(x));
+		let scanItems = this.props.scanHistory[this.props.selectedEvent].map(x => this.createItem(x));
 
 		return (
 			<ScrollView style = {{marginBottom: -1}}>
