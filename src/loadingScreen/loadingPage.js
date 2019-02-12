@@ -43,7 +43,7 @@ class LoadingPage extends Component
 			case "Fetch Failure":
 				Alert.alert(
 					"Fetch Failure",
-					"Something is seriously wrong - Message Wal right away\n\n" + error,
+					"Something is wrong - Message Wal right away\n\n" + error,
 					[{text: 'OK', onPress: () => this.setState({waitingForConnection: true})}],
 					{cancelable: false}
 				);
@@ -72,52 +72,31 @@ class LoadingPage extends Component
 	{
 		console.log("AUTH SUCCESS!");
 
-		let eventTitles = [];
-		let scanHistories = {};
-
-		const toMainApp = () =>
+		const toMainApp = (eventTitles) =>
 		{
 			console.log("LOADING COMPLETE!");
 
 			// Updating the list of event types and initiating the scan history lists
 			this.props.updateEventTypes(eventTitles);
-			// this.props.initiateHistory(eventTypes); //TODO: make this work
+			this.props.initiateHistory(eventTitles);
 			
 			// Moving to the main menu
 			this.props.navigation.navigate("Main");
 		};
 
-		const getScanHistory = (index) =>
-		{
-			if (eventTitles[index] == undefined) toMainApp();
-			else
-			{
-				this.state.firestore.collection("events").doc(eventTitles[index].id).collection("scanHistory").get().then(snapshot =>
-				{
-					snapshot.forEach(document =>
-					{
-						scanHistories[eventTitles[index].id] = {};
-						scanHistories[eventTitles[index].id][document.id] = document.data();
-					});
-					getScanHistory(index+1);
-				}).catch(error =>
-				{
-					console.log("Tried to get scan history.", error);
-					this.displayError("Fetch Failure");
-				});
-			}
-		};
-
 		// Getting the types of events that can be scanned for from firebase
 		this.state.firestore.collection("events").get().then(snapshot =>
 		{
+			console.log("GETTING EVENT TITLES....");
+			let eventTitles = [];
+
 			snapshot.forEach(document =>
 			{
 				let event = document.data();
 				if (event.scannable)
 					eventTitles.push({id: document.id, title: event.title});
 			});
-			getScanHistory(0);
+			toMainApp(eventTitles);
 		}).catch(error =>
 		{
 			console.log("Tried to get events", error);

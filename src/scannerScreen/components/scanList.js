@@ -15,17 +15,14 @@ import {IconButton} from 'cuOrganizer/src/common';
 
 class ScanList extends Component
 {
-	undoScan(id)
+	undoScan(email)
 	{
-		// Telling firebase to set the scan back to false
-		firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + id).set({
+		// Telling firebase to undo the scan then undoing the scan locally
+		firebase.firestore().collection("events").doc(this.props.selectedEventID).collection("scanStatus").doc(hackerEmail).set(
+		{
 			scanned: false,
-			organizer: "",
-			time: ""
-		});
-
-		// Undoing the scan locally
-		this.props.undoScan(this.props.selectedEvent, id);
+			organizer: null
+		}).then(() => this.props.undoScan(this.props.selectedEventID, email)).catch(error => alert(error));
 	}
 
 	createItem(hacker)
@@ -36,7 +33,7 @@ class ScanList extends Component
 				"Undo Scan",
 				"Are you sure?\nOnly undo if absolutely necessary.",
 				[
-					{text: 'Undo', onPress: () => this.undoScan(hacker.id)},
+					{text: 'Undo', onPress: () => this.undoScan(hacker.email)},
 					{text: 'Cancel', onPress: () => {}}
 				]
 			);
@@ -44,11 +41,11 @@ class ScanList extends Component
 
 		return (
 			<View
-				key = {hacker.id}
+				key = {hacker.email}
 				style = {localStyle.item}
 			>
 				{
-					this.props.selectedEvent == 'registration' ? 
+					this.props.selectedEventID == 'registration' ? 
 						<View/>
 						: 
 						<View style = {localStyle.iconButton}>
@@ -72,7 +69,7 @@ class ScanList extends Component
 
 	render()
 	{
-		let scanItems = this.props.scanHistory[this.props.selectedEvent].map(x => this.createItem(x));
+		let scanItems = this.props.scanHistory.map(scanEntry => this.createItem(scanEntry));
 
 		return (
 			<ScrollView style = {{marginBottom: -1}}>
@@ -84,9 +81,9 @@ class ScanList extends Component
 
 const mapStateToProps = (state) =>
 {
-	return {
-		scanHistory: state.scanHistory,
-		selectedEvent: state.selectedEvent
+	return { 
+		scanHistory: state.scanHistory[state.selectedEvent.id],
+		selectedEventID: state.selectedEvent.id
 	};
 }
 export default connect(mapStateToProps, {undoScan})(ScanList);

@@ -5,7 +5,7 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 
 // Redux imports
 import {connect} from 'react-redux';
-import {doScan} from './actions';
+import {logScan} from './actions';
 
 // Firebase imports
 import firebase from 'react-native-firebase';
@@ -28,8 +28,9 @@ class ScannerPage extends Component
 
 		this.state =
 		{
+			firestore: firebase.firestore(),
 			showHistory: false,
-			scanStatus: 'IDLE'
+			animationStatus: 'IDLE'
 		};
 	}
 
@@ -67,7 +68,16 @@ class ScannerPage extends Component
 			case "Not Registered":
 				Alert.alert(
 					"Unregistered Badge",
-					"Please register this cuBadge before using it for other events",
+					"Do not admit this badge if registration has closed",
+					[{text: 'OK', onPress: callback}],
+					{cancelable: false}
+				);
+				return;
+			
+			case "Catch":
+				Alert.alert(
+					"Something went wrong",
+					"Please try again",
 					[{text: 'OK', onPress: callback}],
 					{cancelable: false}
 				);
@@ -78,56 +88,91 @@ class ScannerPage extends Component
 	processCode(code)
 	{
 		// Inidicating that the code is being processed
-		this.setState({scanStatus: 'LOADING'});
+		this.setState({animationStatus: 'LOADING'});
 
 		// Extracting the data from the QR code
-		let data = code.data.split("|");
+		let codeType = code.data.split("|")[0];
+		let hackerEmail = code.data.split("|")[1];
+		// let data = code.data.split("|");
 
-		const success = (snapshot) =>
+		const success = (document) =>
 		{
-			// Telling firebase that this code has been scanned
-			firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + data[1]).set({
-				scanned: true,
-				organizer: this.props.organizerName,
-				time: 111 // TODO: Provide actual time stamp
-			}).then(() => this.scanSuccess(data[1], snapshot.val().firstName, snapshot.val().lastName));
-		};
-		const getHackerInfo = () => firebase.database().ref('/hackers/' + data[1]).once('value').then(success).catch(error => alert(error));
+			// Retrieving the hacker's name
+			let {first, last} = document.data().name;
 
-		const checkIfRegistered = (snapshot) =>
+			// Telling firebase that this code has been scanned
+			this.state.firestore.collection("events").doc("registration").collection("scanStatus").doc(hackerEmail).set(
+			{
+				scanned: true,
+				organizer: this.props.organizerName
+			}).then(() => this.scanSuccess(hackerEmail, first, last)).catch(error =>
+			{
+				console.log("Tried to set the scan status to true.", error);
+				this.scanFailure("Catch");
+			});
+		};
+		
+		const getHackerName = () =>
+		{
+			this.state.firestore.collection("hackers").doc(hackerEmail).get().then(success).catch(error =>
+			{
+				console.log("Tried to get the hacker's name", error);
+				this.scanFailure("Catch");
+			});
+		};
+
+		const checkIfRegistered = (document) =>
 		{
 			// Checking if this badge is registered
-			if (!snapshot.val().scanned)
+			if (!document.data().scanned)
 				this.scanFailure("Not Registered");
 			else
-				getHackerInfo();
+				getHackerName();
 		};
 
-		const checkIfUsed = (snapshot) =>
+		const checkIfUsed = (document) =>
 		{
 			// Checking if this badge has already been scanned
-			if (snapshot.val().scanned)
+			if (document.data().scanned)
 				this.scanFailure("Already Scanned");
+			else if (this.props.selectedEvent.id == "registration")
+				getHackerName();
 			else
-				firebase.database().ref('/badgeChecks/registration/' + data[1]).once('value').then(this.props.selectedEvent == 'registration' ? getHackerInfo : checkIfRegistered).catch(error => alert(error));
+			{
+				this.state.firestore.collection("events").doc("registration").collection("scanStatus").doc(hackerEmail).get().then(checkIfRegistered).catch(error =>
+				{
+					console.log("Tried to check if the hacker was registered", error);
+					this.scanFailure("Catch");
+				});
+			}
 		};
 
 		// Checking if the QR code is in the correct format
-		if (data[0] != BADGE_KEY || data[1] == null)
+		if (codeType != BADGE_KEY || hackerEmail == null)
 		{
-			if (data[0] == INVITE_KEY)
+			if (codeType == INVITE_KEY)
 				this.scanFailure("Invite Code");
 			else
 				this.scanFailure("Invalid Badge");
 		}
 		else
-			firebase.database().ref('/badgeChecks/' + this.props.selectedEvent + '/' + data[1]).once('value').then(checkIfUsed).catch(error => alert(error));
+		{
+			// Checking if the badge has been scanned before
+			console.log(this.props.selectedEvent.id, hackerEmail);
+			this.state.firestore.collection("events").doc(this.props.selectedEvent.id).collection("scanStatus").doc(hackerEmail).get().then(checkIfUsed).catch(error =>
+			{
+				console.log("Tried to get the hacker's scan status.", error);
+				this.scanFailure("Catch");
+			});
+		}
 	}
 
-	scanSuccess(hackerID, firstName, lastName)
+	scanSuccess(hackerEmail, firstName, lastName)
 	{
+		console.log("SCAN SUCCESSFUL");
+
 		// Inidicating the successful scan
-		this.setState({scanStatus: 'SUCCESS'});
+		this.setState({animationStatus: 'SUCCESS'});
 		
 		// Vibrating the phone
 		Vibration.vibrate(200);
@@ -135,20 +180,22 @@ class ScannerPage extends Component
 		setTimeout(() =>
 		{
 			// Turning off the indicator
-			this.setState({scanStatus: 'IDLE'});
+			this.setState({animationStatus: 'IDLE'});
 
 			// Turning the scanner back on after a cooldown time
 			setTimeout(() => this.scannerRef.current.reactivate(), 1000);
 		}, 500);
 
-		// Making an undo button
-		this.props.doScan(this.props.selectedEvent, {id: hackerID, firstName, lastName});
+		// Logging the scan in the phone
+		this.props.logScan(this.props.selectedEvent.id, hackerEmail, firstName, lastName);
 	}
 
 	scanFailure(error)
 	{
+		console.log("SCAN FAILED");
+
 		// Indicating an unsuccessful scan
-		this.setState({scanStatus: 'FAILURE'});
+		this.setState({animationStatus: 'FAILURE'});
 		
 		// Vibrating the phone
 		Vibration.vibrate(200);
@@ -157,7 +204,7 @@ class ScannerPage extends Component
 		this.showAlert(error, () =>
 		{
 			// Turning the scanner back on
-			this.setState({scanStatus: 'IDLE'});
+			this.setState({animationStatus: 'IDLE'});
 			this.scannerRef.current.reactivate();
 		});
 	}
@@ -211,13 +258,14 @@ class ScannerPage extends Component
 						onRead = {this.processCode.bind(this)}
 						fadeIn = {false}
 						showMarker = {true}
-						customMarker = {<CameraMarker mode = {this.state.scanStatus}/>}
+						customMarker = {<CameraMarker mode = {this.state.animationStatus}/>}
 						cameraStyle = {localStyle.camera}
+						cameraProps = {{captureAudio: false}}
 					/>
 				</View>
 				<View style = {{height: height - StatusBar.currentHeight}}>
 					<ActionBar
-						title = {this.props.eventTitles[this.props.selectedEvent]}
+						title = {this.props.selectedEvent.title}
 						lifted = {true}
 						inverted = {false}
 						leftButton =
@@ -232,7 +280,7 @@ class ScannerPage extends Component
 						rightButton = {this.renderHistoryButton()}
 					/>
 					<View style = {localStyle.scanHistory}>
-						<ScanList/>
+						{/* <ScanList/> */}
 					</View>
 				</View>
 			</ScrollView>
@@ -243,12 +291,11 @@ class ScannerPage extends Component
 const mapStateToProps = (state) =>
 {
 	return {
-		eventTitles: state.eventTitles,
 		organizerName: state.organizerName,
 		selectedEvent: state.selectedEvent
 	};
 }
-export default connect(mapStateToProps, {doScan})(ScannerPage);
+export default connect(mapStateToProps, {logScan})(ScannerPage);
 
 
 const localStyle = StyleSheet.create(

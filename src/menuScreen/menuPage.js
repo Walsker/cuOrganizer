@@ -12,18 +12,19 @@ import {Button, Divider, PagePadding} from 'cuOrganizer/src/common';
 
 class MenuPage extends Component
 {
-	createEventButton(eventKey, eventName)
+	createEventButton(event)
 	{
 		const toScanner = () =>
 		{
-			this.props.selectEvent(eventKey);
+			console.log("Selected Event: ", event)
+			this.props.selectEvent(event);
 			this.props.navigation.navigate("Scanner");
 		}
 
 		return (
 			<Button
-				key = {eventKey}
-				label = {eventName}
+				key = {event.id}
+				label = {event.title}
 				labelColor = {colors.primaryTextColor}
 				color = {colors.primaryColor}
 				inverted = {false}
@@ -35,7 +36,7 @@ class MenuPage extends Component
 	render()
 	{
 		let firstName = (this.props.organizerName.split(" "))[0];
-		let eventButtons = this.props.eventTitles.map(event => this.createEventButton(event.id, event.title));
+		let eventButtons = this.props.eventTitles.map(event => this.createEventButton(event));
 
 		return (
 			<View style = {containerStyle.page}>

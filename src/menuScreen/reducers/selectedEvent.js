@@ -1,6 +1,6 @@
 import {SELECT_EVENT} from '../actionTypes';
 
-export default (prevState = "", action) =>
+export default (prevState = {}, action) =>
 {
     switch (action.type)
     {

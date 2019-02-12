@@ -5,18 +5,19 @@ import * as ACTION_TYPES from './actionTypes';
 export const initiateHistory = (eventTitles) =>
 {
     let payload = {};
-    for (let event in eventTitles)
-        payload[event] = [];
+    for (event of eventTitles)
+        payload[event.id] = [];
 
+    console.log("HISTORY: ", eventTitles, payload);
     return {type: ACTION_TYPES.INITIATE_HISTORY, payload};
 };
 
 // Creating an action that adds a scan to the history list
-export const doScan = (event, scanEntry) =>
+export const logScan = (event, email, firstName, lastName) =>
 {
     return {
-        type: ACTION_TYPES.DO_SCAN,
-        payload: {event, entry: scanEntry}
+        type: ACTION_TYPES.LOG_SCAN,
+        payload: {event, entry: {email, firstName, lastName}}
     };
 };
 
