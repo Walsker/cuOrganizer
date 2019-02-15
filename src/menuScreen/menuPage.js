@@ -1,6 +1,6 @@
 // React Native imports
 import React, {Component} from 'react';
-import {Text, View} from 'react-native';
+import {ScrollView, Text, View} from 'react-native';
 
 // Redux imports
 import {connect} from 'react-redux';
@@ -39,29 +39,31 @@ class MenuPage extends Component
 
 		return (
 			<View style = {containerStyle.page}>
-				<PagePadding/>
-				<View style = {containerStyle.pageSection}>
-					<Text style = {textStyle.regular(21, 'center')}>Hey {firstName}!</Text>
-				</View>
-				<View style = {containerStyle.pageSection}>
-					<Text style = {textStyle.regular(21, 'center')}>
-						To begin scanning codes, select the event you're responsible for below.
-					</Text>
-				</View>
-				<Divider color = {colors.dividerColor}/>
-				<View style = {containerStyle.pageSection}>
-					{eventButtons}
-				</View>
-				<Divider color = {colors.dividerColor}/>
-				<View style = {containerStyle.pageSection}>
-					<Button
-						label = "Refresh"
-						color = 'white'
-						labelColor = {colors.primaryColor}
-						inverted = {false}
-						action = {() => this.props.navigation.navigate("Loading")}
-					/>
-				</View>
+				<ScrollView>
+					<PagePadding/>
+					<View style = {containerStyle.pageSection}>
+						<Text style = {textStyle.regular(21, 'center')}>Hey {firstName}!</Text>
+					</View>
+					<View style = {containerStyle.pageSection}>
+						<Text style = {textStyle.regular(21, 'center')}>
+							To begin scanning codes, select the event you're responsible for below.
+						</Text>
+					</View>
+					<Divider color = {colors.dividerColor}/>
+					<View style = {containerStyle.pageSection}>
+						{eventButtons}
+					</View>
+					<Divider color = {colors.dividerColor}/>
+					<View style = {containerStyle.pageSection}>
+						<Button
+							label = "Refresh"
+							color = 'white'
+							labelColor = {colors.primaryColor}
+							inverted = {false}
+							action = {() => this.props.navigation.navigate("Loading")}
+						/>
+					</View>
+				</ScrollView>
 			</View>
 		);
 	}
