@@ -1,0 +1,38 @@
+# Uncomment the next line to define a global platform for your project
+platform :ios, '9.0'
+
+target 'cuOrganizer' do
+  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
+  # use_frameworks!
+
+  # Pods for cuOrganizer
+
+  # Required by RNFirebase
+  pod 'Firebase/Core', '~> 5.15.0'
+  pod 'Firebase/Auth', '~> 5.15.0'
+  pod 'Firebase/Firestore', '~> 5.15.0'
+
+  # target 'cuOrganizer-tvOSTests' do
+  #   inherit! :search_paths
+  #   # Pods for testing
+  # end
+
+  target 'cuOrganizerTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+end
+
+# target 'cuOrganizer-tvOS' do
+#   # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
+#   # use_frameworks!
+
+#   # Pods for cuOrganizer-tvOS
+
+#   target 'cuOrganizer-tvOSTests' do
+#     inherit! :search_paths
+#     # Pods for testing
+#   end
+
+# end

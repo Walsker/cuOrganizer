@@ -1,6 +1,6 @@
 // React imports
 import React, {Component} from 'react';
-import {Alert, Dimensions, ScrollView, StatusBar, StyleSheet, Vibration, View} from 'react-native';
+import {Alert, Dimensions, Platform, ScrollView, StatusBar, StyleSheet, Vibration, View} from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
 // Redux imports
@@ -213,10 +213,13 @@ class ScannerPage extends Component
 		let toggleHistory = () =>
 		{
 			// Changing the toggle icon
-			if (!this.state.showHistory)
-				this.scrollRef.current.scrollToEnd();
-			else
-				this.scrollRef.current.scrollTo({x: 0, y: 0, animated: true});
+			if (Platform.OS === 'android')
+			{
+				if (!this.state.showHistory)
+					this.scrollRef.current.scrollToEnd();
+				else
+					this.scrollRef.current.scrollTo({x: 0, y: 0, animated: true});
+			}
 
 			// Toggle state flag
 			this.setState((prevState) => {return {showHistory: !prevState.showHistory};});
@@ -232,7 +235,69 @@ class ScannerPage extends Component
 		);
 	}
 
-	render()
+	renderActionBar()
+	{
+		return (
+			<ActionBar
+				title = {this.props.selectedEvent.title}
+				lifted = {true}
+				inverted = {false}
+				leftButton =
+				{
+					<IconButton
+						type = 'arrow-back'
+						size = {30}
+						color = {colors.primaryTextColor}
+						action = {() => this.props.navigation.goBack()}
+					/>
+				}
+				rightButton = {this.renderHistoryButton()}
+			/>
+		);
+	}
+
+	renderScanList()
+	{
+		return (
+			<View style = {localStyle.scanHistory}>
+				<ScanList/>
+			</View>
+		);
+	}
+
+	renderCamera(size)
+	{
+		return (
+			// <View style = {[localStyle.cameraSpace, {height: height - (56 + 20)}]}>
+			<View style = {[localStyle.cameraSpace, {height: size}]}>
+				{this.state.displayIndicator ? <View style = {[localStyle.indicator, {borderColor: this.state.indicatorColor}]}/> : <View/>}
+				<QRCodeScanner
+					ref = {this.scannerRef}
+					onRead = {this.processCode.bind(this)}
+					fadeIn = {false}
+					showMarker = {true}
+					customMarker = {<CameraMarker mode = {this.state.animationStatus}/>}
+					cameraStyle = {localStyle.camera}
+					cameraProps = {{captureAudio: false}}
+				/>
+			</View>
+		);
+	}
+
+	renderIOS()
+	{
+		let {height} = Dimensions.get('screen');
+		let content = this.state.showHistory ? this.renderScanList() : this.renderCamera(height - 76);
+
+		return (
+			<View style = {{flex: 1}}>
+				{this.renderActionBar()}
+				{content}
+			</View>
+		);
+	}
+
+	renderAndroid()
 	{
 		let {height} = Dimensions.get('screen');
 
@@ -249,40 +314,73 @@ class ScannerPage extends Component
 					backgroundColor = {this.state.showHistory ? colors.primaryColor : 'transparent'}
 					animated = {true}
 				/>
-				<View style = {[localStyle.cameraSpace, {height: height - 56}]}>
-					{this.state.displayIndicator ? <View style = {[localStyle.indicator, {borderColor: this.state.indicatorColor}]}/> : <View/>}
-					<QRCodeScanner
-						ref = {this.scannerRef}
-						onRead = {this.processCode.bind(this)}
-						fadeIn = {false}
-						showMarker = {true}
-						customMarker = {<CameraMarker mode = {this.state.animationStatus}/>}
-						cameraStyle = {localStyle.camera}
-						cameraProps = {{captureAudio: false}}
-					/>
-				</View>
+				{this.renderCamera(height - 56)}
 				<View style = {{height: height - StatusBar.currentHeight}}>
-					<ActionBar
-						title = {this.props.selectedEvent.title}
-						lifted = {true}
-						inverted = {false}
-						leftButton =
-						{
-							<IconButton
-								type = 'arrow-back'
-								size = {30}
-								color = {colors.primaryTextColor}
-								action = {() => this.props.navigation.goBack()}
-							/>
-						}
-						rightButton = {this.renderHistoryButton()}
-					/>
-					<View style = {localStyle.scanHistory}>
-						<ScanList/>
-					</View>
+					{this.renderActionBar()}
+					{this.renderScanList()}
 				</View>
 			</ScrollView>
 		);
+	}
+
+	render()
+	{
+		// let {height} = Dimensions.get('window');
+		// let statusBarHeight = Platform.OS === 'ios' ? 20 : StatusBar.currentHeight;
+
+		// return (
+		// 	<ScrollView
+		// 		ref = {this.scrollRef}
+		// 		style = {{backgroundColor: 'red'}}
+		// 		scrollsToTop = {false}
+		// 		scrollEnabled = {false}
+		// 		nestedScrollEnabled = {true}
+		// 		showsVerticalScrollIndicator = {false}
+		// 		showsHorizontalScrollIndicator = {false}
+		// 	>
+		// 		<StatusBar
+		// 			backgroundColor = {this.state.showHistory ? colors.primaryColor : 'transparent'}
+		// 			animated = {true}
+		// 		/>
+		// 		<View style = {[localStyle.cameraSpace, {height: height - (56 + 20)}]}>
+		// 			{this.state.displayIndicator ? <View style = {[localStyle.indicator, {borderColor: this.state.indicatorColor}]}/> : <View/>}
+		// 			<QRCodeScanner
+		// 				ref = {this.scannerRef}
+		// 				onRead = {this.processCode.bind(this)}
+		// 				fadeIn = {false}
+		// 				showMarker = {true}
+		// 				customMarker = {<CameraMarker mode = {this.state.animationStatus}/>}
+		// 				cameraStyle = {localStyle.camera}
+		// 				cameraProps = {{captureAudio: false}}
+		// 			/>
+		// 		</View>
+		// 		<View style = {{height: height - statusBarHeight}}>
+		// 			<ActionBar
+		// 				title = {this.props.selectedEvent.title}
+		// 				lifted = {true}
+		// 				inverted = {false}
+		// 				leftButton =
+		// 				{
+		// 					<IconButton
+		// 						type = 'arrow-back'
+		// 						size = {30}
+		// 						color = {colors.primaryTextColor}
+		// 						action = {() => this.props.navigation.goBack()}
+		// 					/>
+		// 				}
+		// 				rightButton = {this.renderHistoryButton()}
+		// 			/>
+		// 			<View style = {localStyle.scanHistory}>
+		// 				<ScanList/>
+		// 			</View>
+		// 		</View>
+		// 	</ScrollView>
+		// );
+
+		if (Platform.OS === 'ios')
+			return this.renderIOS();
+		else
+			return this.renderAndroid();
 	}
 }
 
@@ -302,7 +400,7 @@ const localStyle = StyleSheet.create(
 	cameraMarker: {borderColor: 'white'},
 	cameraSpace:
 	{
-		flex: 0.1,
+		flex: Platform.OS === 'ios' ? 1 : 0.1,
 		justifyContent: 'center',
 		backgroundColor: colors.primarySpaceColor
 	},

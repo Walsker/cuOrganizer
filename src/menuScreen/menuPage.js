@@ -41,8 +41,6 @@ class MenuPage extends Component
 			<View style = {containerStyle.page}>
 				<ScrollView>
 					<PagePadding/>
-					<PagePadding/>
-					<PagePadding/>
 					<View style = {containerStyle.pageSection}>
 						<Text style = {textStyle.regular(21, 'center')}>Hey {firstName}!</Text>
 					</View>
